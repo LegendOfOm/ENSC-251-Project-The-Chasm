@@ -5,8 +5,15 @@
 
 class PortalNode : public NodeCard
 {
+private:
+    PortalNode* connectedPortal;
+
 public:
     PortalNode();
+
+    void setConnectedPortal(PortalNode* portal);
+    PortalNode* getConnectedPortal() const;
+
     std::string output() const override;
 };
 
