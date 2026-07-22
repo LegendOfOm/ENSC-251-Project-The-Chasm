@@ -10,8 +10,8 @@ private:
 
 public:
     Booster(int amount);
-
     int getBoostAmount() const;
+    std::string output() const override;
 };
 
 #endif
