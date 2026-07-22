@@ -10,8 +10,8 @@ private:
 
 public:
     Multiplier(int amount);
-
     int getMultiplierAmount() const;
+    std::string output() const override;
 };
 
 #endif

@@ -10,8 +10,8 @@ private:
 
 public:
     Recoiler(int amount);
-
     int getRecoilAmount() const;
+    std::string output() const override;
 };
 
 #endif

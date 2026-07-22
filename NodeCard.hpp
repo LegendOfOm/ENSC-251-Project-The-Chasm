@@ -8,6 +8,7 @@ class NodeCard : public Card
 public:
     NodeCard(const std::string& cardName = "Normal Node");
     NodeCard(const std::string& cardName);
+    std::string output() const override;
 };
 
 #endif
