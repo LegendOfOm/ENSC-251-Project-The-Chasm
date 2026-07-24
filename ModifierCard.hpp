@@ -7,7 +7,6 @@ class ModifierCard : public Card
 {
 public:
     ModifierCard(const std::string& cardName);
-    std::string output() const override;
 };
 
 #endif
