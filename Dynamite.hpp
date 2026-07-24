@@ -7,7 +7,6 @@ class Dynamite : public ModifierCard
 {
 public:
     Dynamite();
-    std::string output() const override;
 };
 
 #endif
