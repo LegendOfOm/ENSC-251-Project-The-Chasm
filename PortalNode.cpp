@@ -26,17 +26,17 @@ std::string PortalNode::output() const
 {
     if (colour == "Red")
     {
-        return "[Red P ]";
+        return "\033[31m[Portal]\033[0m";
     }
 
     if (colour == "Blue")
     {
-        return "[BlueP ]";
+        return "\033[34m[Portal]\033[0m";
     }
 
     if (colour == "Green")
     {
-        return "[Grn P ]";
+        return "\033[32m[Portal]\033[0m";
     }
 
     return "[Portal]";
