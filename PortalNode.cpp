@@ -1,6 +1,16 @@
 #include "PortalNode.hpp"
 
-PortalNode::PortalNode(): NodeCard("Portal Node"), connectedPortal(nullptr){}
+PortalNode::PortalNode(const std::string& portalColour)
+    : NodeCard("Portal Node"),
+      colour(portalColour),
+      connectedPortal(nullptr)
+{
+}
+
+std::string PortalNode::getColour() const
+{
+    return colour;
+}
 
 void PortalNode::setConnectedPortal(PortalNode* portal)
 {
@@ -14,5 +24,20 @@ PortalNode* PortalNode::getConnectedPortal() const
 
 std::string PortalNode::output() const
 {
+    if (colour == "Red")
+    {
+        return "[Red P ]";
+    }
+
+    if (colour == "Blue")
+    {
+        return "[BlueP ]";
+    }
+
+    if (colour == "Green")
+    {
+        return "[Grn P ]";
+    }
+
     return "[Portal]";
 }
