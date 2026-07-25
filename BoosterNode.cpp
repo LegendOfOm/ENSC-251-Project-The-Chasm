@@ -1,4 +1,4 @@
-#include "BoostNode.hpp"
+#include "BoosterNode.hpp"
 #include <string>
 
 BoostNode::BoostNode(int amount): NodeCard("Boost Node"), boostAmount(amount){}
