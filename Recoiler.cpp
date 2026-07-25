@@ -3,7 +3,7 @@
 
 Recoiler::Recoiler(int amount): ModifierCard("Recoiler"), recoilAmount(amount){}
 
-int Recoiler::getAmount() const
+int Recoiler::getRecoilAmount() const
 {
     return -recoilAmount;
 }
