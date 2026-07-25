@@ -3,7 +3,7 @@
 
 Booster::Booster(int amount): ModifierCard("Booster"), boostAmount(amount){}
 
-int Booster::getAmount() const
+int Booster::getBoostAmount() const
 {
     return boostAmount;
 }
