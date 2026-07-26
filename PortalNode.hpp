@@ -16,6 +16,7 @@ public:
     PortalNode* getConnectedPortal() const;
 
     std::string output() const override;
+    PortalNode* clone() const override;
 };
 
 #endif

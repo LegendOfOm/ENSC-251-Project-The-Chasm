@@ -13,6 +13,7 @@ public:
 
     int getMovementAmount() const override;
     std::string output() const override;
+    BoostNode* clone() const override;
 };
 
 #endif

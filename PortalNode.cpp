@@ -41,3 +41,8 @@ std::string PortalNode::output() const
 
     return "[Portal]";
 }
+
+PortalNode* PortalNode::clone() const
+{
+    return new PortalNode(*this);
+}

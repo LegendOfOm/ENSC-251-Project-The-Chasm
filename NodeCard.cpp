@@ -11,3 +11,8 @@ std::string NodeCard::output() const
 {
     return "[Norm  ]";
 }
+
+NodeCard* NodeCard::clone() const
+{
+    return new NodeCard(*this);
+}

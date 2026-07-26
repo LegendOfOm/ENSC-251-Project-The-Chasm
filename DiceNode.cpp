@@ -19,3 +19,8 @@ std::string DiceNode::output() const
 {
     return "[Dice  ]";
 }
+
+DiceNode* DiceNode::clone() const
+{
+    return new DiceNode(*this);
+}

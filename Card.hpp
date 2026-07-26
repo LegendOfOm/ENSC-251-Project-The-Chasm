@@ -14,5 +14,6 @@ public:
     std::string getName() const;
     // Returns a fixed-width card label
     virtual std::string output() const;
+    virtual Card* clone() const = 0;
 };
 #endif

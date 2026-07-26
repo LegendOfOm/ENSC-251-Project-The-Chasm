@@ -12,3 +12,8 @@ std::string RecoilNode::output() const
 {
     return "[RNod-" + std::to_string(recoilAmount) + "]";
 }
+
+RecoilNode* RecoilNode::clone() const
+{
+    return new RecoilNode(*this);
+}

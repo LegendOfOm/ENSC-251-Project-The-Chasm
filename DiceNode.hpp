@@ -9,6 +9,7 @@ public:
     DiceNode();
     int rollDice() const;
     std::string output() const override;
+    DiceNode* clone() const override;
 };
 
 #endif

@@ -12,6 +12,7 @@ public:
     NodeCard(const std::string& cardName = "Normal Node");
     virtual int getMovementAmount() const;
     std::string output() const override;
+    NodeCard* clone() const override;
 };
 
 #endif

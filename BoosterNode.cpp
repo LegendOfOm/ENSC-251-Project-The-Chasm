@@ -12,3 +12,8 @@ std::string BoostNode::output() const
 {
     return "[BNod+" + std::to_string(boostAmount) + "]";
 }
+
+BoostNode* BoostNode::clone() const
+{
+    return new BoostNode(*this);
+}
