@@ -1,5 +1,6 @@
 #include "Bridge.hpp"
 #include <iostream>
+#include "NodeCard.hpp"
 
 Bridge::Bridge() : numberOfNodes(12) {
     player1Castle = new Node;

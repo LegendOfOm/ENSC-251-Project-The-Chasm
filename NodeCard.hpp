@@ -6,8 +6,8 @@
 class NodeCard : public Card
 {
 public:
-    NodeCard(const std::string& cardName = "Normal Node");
     NodeCard(const std::string& cardName);
+    NodeCard(const std::string& cardName = "Normal Node");
     virtual int getMovementAmount() const;
     std::string output() const override;
 };

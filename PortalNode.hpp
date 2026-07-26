@@ -6,11 +6,12 @@
 class PortalNode : public NodeCard
 {
 private:
+    std::string colour;
     PortalNode* connectedPortal;
 
 public:
-    PortalNode();
-
+    PortalNode(const std::string& portalColour);
+    std::string getColour() const;
     void setConnectedPortal(PortalNode* portal);
     PortalNode* getConnectedPortal() const;
 
