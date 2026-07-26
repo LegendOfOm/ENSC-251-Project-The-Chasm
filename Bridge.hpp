@@ -4,6 +4,7 @@
 #include <string>
 #include "Card.hpp"
 #include "ModifierCard.hpp"
+#include "NodeCard.hpp"
 
 struct Node {
     Node* left;
