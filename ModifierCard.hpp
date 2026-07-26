@@ -6,6 +6,7 @@
 class ModifierCard : public Card
 {
 public:
+    ModifierCard();
     ModifierCard(const std::string& cardName);
 };
 
