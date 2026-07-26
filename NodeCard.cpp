@@ -1,10 +1,10 @@
 #include "NodeCard.hpp"
 
-NodeCard::NodeCard(const std::string& cardName): Card(cardName){}
+NodeCard::NodeCard(const std::string& cardName): Card(cardName), movementAmount(0){}
 
 int NodeCard::getMovementAmount() const
 {
-    return 0;
+    return movementAmount;
 }
 
 std::string NodeCard::output() const
