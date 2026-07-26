@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include <string>
+#include <vector>
 
 class Card;
 struct Node;
@@ -9,70 +10,55 @@ struct Node;
 class Player {
 public:
     static const int MAX_HAND_SIZE = 5;
-    static const int MAX_HAND_SIZE_CARDS_PER_TURN = 3; // cards placed per Placing Phase
+    static const int MAX_HAND_SIZE_CARDS_PER_TURN = 3; // cards placed in Placing Phase
     static const int CARDS_DRAWN_PER_TURN = 3;
 
     Player(int playerId, Node* startingCastle);
-    // postcondition: initializes the player starting positions
-
+    // postcondition initializing player start positions
     ~Player();
 
-    // ---- Identity / position ----
+    // Identity/Position
     int getPlayerId() const;
-    // postcondition: returns the player id
-
+    // postcondition returns the player id
     Node* getCurrentNode() const;
-    // postcondition: returns the node of the current node;
-
+    // postcondition returns the node of the current node
     void setCurrentNode(Node* node);
-    // postcondition: sets the current node to a new node
-
+    // postcondition sets the current node to a new node
     Node* getCastleNode() const;
-    // postcondition: returns the castle node
+    // postcondition returns the castle node
 
-    // ---- Hand management (Drawing Phase) ----
-    bool addCardToHand(Card* card);      
-    // precondition: card must be valid and hand must not be full
-    // postcondition: adds a card to the hand and returns true
-
-    bool removeCardFromHand(Card* card); // used when a card is placed from hand
-    // postcondition: removes a card from the players hand
-
+    // Drawing Phase
+    bool addCardToHand(Card* card);
+    
+    bool removeCardFromHand(Card* card); 
+    
     int getHandSize() const;
-    // postcondition: returns the amount of cards in the player's hand
-
+    
     Card* getCardInHand(int index) const;
-    // precondition: index must be within the amount of cards the player has
-    // postcondition: returns the card selected
-
+    
     bool isHandFull() const;
-    // postcondition: checks whether or not the hand is full
+    
 
-    // ---- Movement (Moving Phase) ----
+    // Moving Phase
     bool hasActivated(const Node* node) const;
-    //returns whether or not 
-
     void markActivated(Node* landedNode);
-    //postcondition: marks the node as already activated
-
+    // marks the node as already activated
     void resetActivatedCardsForNewTurn();
-    //postcondition: resets all activated nodes 
+    //resets all activated nodes
 
-    // ---- Win condition ----
+    // Win Condition
     bool hasWon() const;
-    // postcondition: checks whether the player has won. 
-
+    // whether player has won or not
     void setWon(bool won);
-    // postcondition: sets the player status as won 
 
 private:
-    int playerId;              
-    Node* currentNode;   
-
-    Card* hand[MAX_HAND_SIZE];               
+    int playerId;
+    Node* currentNode;
+    Node* castleNode;                          
+    Card* hand[MAX_HAND_SIZE];
     int handSize;
-
     bool won;
+    std::vector<Node*> activatedCardsThisTurn;  
 };
 
 #endif // PLAYER_H
