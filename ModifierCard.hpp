@@ -8,6 +8,7 @@ class ModifierCard : public Card
 public:
     ModifierCard();
     ModifierCard(const std::string& cardName);
+    virtual ModifierCard* clone() const;
 };
 
 #endif

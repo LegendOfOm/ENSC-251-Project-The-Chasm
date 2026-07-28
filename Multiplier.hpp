@@ -11,6 +11,7 @@ private:
 public:
     Multiplier(int amount);
     int getMultiplierAmount() const;
+    virtual Multiplier* clone() const;
 };
 
 #endif

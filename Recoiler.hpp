@@ -11,6 +11,7 @@ private:
 public:
     Recoiler(int amount);
     int getRecoilAmount() const;
+    virtual Recoiler* clone() const;
 };
 
 #endif

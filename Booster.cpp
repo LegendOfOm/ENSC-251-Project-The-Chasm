@@ -7,3 +7,8 @@ int Booster::getBoostAmount() const
 {
     return boostAmount;
 }
+
+Booster* Booster::clone() const
+{
+    return new Booster(*this);
+}

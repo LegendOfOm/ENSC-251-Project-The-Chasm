@@ -7,3 +7,8 @@ int Recoiler::getRecoilAmount() const
 {
     return -recoilAmount;
 }
+
+Recoiler* Recoiler::clone() const
+{
+    return new Recoiler(*this);
+}

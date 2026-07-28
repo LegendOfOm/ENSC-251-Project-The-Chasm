@@ -6,3 +6,8 @@ int Multiplier::getMultiplierAmount() const
 {
     return multiplierAmount;
 }
+
+Multiplier* Multiplier::clone() const
+{
+    return new Multiplier(*this);
+}

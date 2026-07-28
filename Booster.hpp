@@ -11,6 +11,7 @@ private:
 public:
     Booster(int amount);
     int getBoostAmount() const;
+    virtual Booster* clone() const;
 };
 
 #endif
