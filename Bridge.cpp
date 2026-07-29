@@ -19,37 +19,22 @@ Bridge::Bridge() : numberOfNodes(12) {
     player2Castle = tempptr; 
 }
 
+Bridge::Bridge(const Bridge& other) {
+    copyFrom(other);
+}
+
 Bridge& Bridge::operator=(const Bridge& other) {
     if (this == &other) return *this;
-    Node* myTemporaryptr;
-    while (numberOfNodes > 0) {
-        myTemporaryptr = player1Castle->right;
-        if (player1Castle->beginningOfStrand != nullptr) modifierStrandDeleter(player1Castle->beginningOfStrand);
-        delete player1Castle->nodeCard;
-        delete player1Castle;
-        player1Castle = myTemporaryptr;
-        numberOfNodes--;
-    }
-    if (other.numberOfNodes == 0) {
-        player1Castle = nullptr;
-        player2Castle = nullptr;
-        return *this;
-    }
-
-    player1Castle = new Node;
-    player1Castle->left = nullptr;
-    player1Castle->isPlayer1Castle = true;
-    
-    numberOfNodes = other.numberOfNodes;
-    Node* otherTempptr = other.player1Castle->right;
-    while (other.player1Castle != other.player2Castle) {
-        myTemporaryptr->right = new Node;
-        myTemporaryptr = myTemporaryptr->right;
-        if (otherTempptr->nodeCard != nullptr);
-    }
+    clear();
+    copyFrom(other);
+    return *this;
 }
 
 Bridge::~Bridge() {
+    clear();
+}
+
+void Bridge::clear() {
     Node* myTemporaryptr;
     while (numberOfNodes > 0) {
         myTemporaryptr = player1Castle->right;
@@ -61,6 +46,54 @@ Bridge::~Bridge() {
     }
     player1Castle = nullptr;
     player2Castle = nullptr;
+}
+
+void Bridge::copyFrom(const Bridge& other) {
+    player1Castle = nullptr;
+    player2Castle = nullptr;
+    numberOfNodes = 0;
+
+    if (other.player1Castle == nullptr) return;
+    
+    numberOfNodes = other.numberOfNodes;
+    player1Castle = new Node;
+    player2Castle = nullptr;
+    player1Castle->left = nullptr;
+    player1Castle->isPlayer1Castle = true;
+    Node* myTemporaryptr = player1Castle;
+    ModifierStrand* myModptr;
+    
+    numberOfNodes = other.numberOfNodes;
+    Node* otherTempptr = other.player1Castle->right;
+    ModifierStrand* otherModptr = otherTempptr->beginningOfStrand;
+    while (otherTempptr != other.player2Castle) {
+        myTemporaryptr->right = new Node;
+        myTemporaryptr->right->left = myTemporaryptr;
+        myTemporaryptr = myTemporaryptr->right;
+        if (otherTempptr->nodeCard != nullptr) {
+            myTemporaryptr->nodeCard = otherTempptr->nodeCard->clone();
+        }
+        if (otherModptr != nullptr) {
+            myTemporaryptr->beginningOfStrand = new ModifierStrand;
+            myModptr = myTemporaryptr->beginningOfStrand;
+            myModptr->modifierCard = otherModptr->modifierCard->clone();
+            otherModptr = otherModptr->next;
+        }
+        while (otherModptr != nullptr) {
+            myModptr->next = new ModifierStrand;
+            myModptr = myModptr->next;
+            if (otherModptr->modifierCard != nullptr) myModptr->modifierCard = otherModptr->modifierCard->clone();
+            otherModptr = otherModptr->next;
+        }
+        otherTempptr = otherTempptr->right;
+        otherModptr = otherTempptr->beginningOfStrand;
+    }
+    
+    myTemporaryptr->right = new Node;
+    myTemporaryptr->right->left = myTemporaryptr;
+    myTemporaryptr = myTemporaryptr->right;
+    myTemporaryptr->isPlayer2Castle = true;
+    player2Castle = myTemporaryptr;
 }
 
 void Bridge::modifierStrandDeleter(ModifierStrand* tempptr) {

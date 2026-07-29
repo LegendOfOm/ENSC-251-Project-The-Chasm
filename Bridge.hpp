@@ -78,6 +78,9 @@ private:
 
     void modifierStrandDeleter(ModifierStrand*);
     Node* travelToNode(int);
+
+    void clear();
+    void copyFrom(const Bridge& other);
 };
 
 #endif // BRIDGE_H
