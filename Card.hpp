@@ -11,6 +11,8 @@ protected:
 public:
     Card(const std::string& n);
 
+    virtual ~Card();
+    
     std::string getName() const;
     // Returns a fixed-width card label
     virtual std::string output() const;

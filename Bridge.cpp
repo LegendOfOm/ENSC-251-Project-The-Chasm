@@ -172,6 +172,15 @@ int Bridge::castleNodeCheck(const Node* node) const {
     return 0;
 }
 
+Node* Bridge::getPlayer1Castle() const {
+        return player1Castle;
+}
+
+Node* Bridge::getPlayer2Castle() const {
+        return player2Castle;
+}
+
+
 void Bridge::printBridge() const {
     Node* tempptr = player1Castle;
     std::cout << "[P1 Castle] - "; 
