@@ -21,6 +21,19 @@ Card* Deck::drawCard() {
     return drawnCard;
 }
 
+Card* Deck::drawCardAtIndex(int index) {
+    if (index < 0 || index >= deckSize) {
+        return nullptr; // Invalid index
+    }
+    Card* drawnCard = cards[index];
+    for (int i = index; i < deckSize - 1; ++i) {
+        cards[i] = cards[i + 1]; // Shift cards down
+    }
+    cards[deckSize - 1] = nullptr; // Remove the last card
+    deckSize--;
+    return drawnCard;
+}
+
 void Deck::clearDeck() {
     for (int i = 0; i < deckSize; ++i) {
         delete cards[i];
