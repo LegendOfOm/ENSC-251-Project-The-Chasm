@@ -69,11 +69,14 @@ public:
     bool isValidNode(const int& target) const; 
 
     // postcondition: checks whether or not the node is a castle node or not. 
-    // returns 0 for false
-    // returns 1 for player 1 castle
-    // returns 2 for player 2 castle
-    int castleNodeCheck(const Node* node) const;
+    // returns 0 for false, 1 for player 1 castle, 2 for player 2 castle
     
+    Node* getPlayer1Castle() const;
+    // postcondition: returns the castle node of player 1
+
+    Node* getPlayer2Castle() const;
+    // postcondition: returns the castle node of player 2
+
     // ---- Text UI support ----
 
     // postcondition: prints the bridge
