@@ -26,49 +26,58 @@ struct Node {
 
 class Bridge {
 public:
-    Bridge();
-    // constructor
     // postcondition: Initializes the bridge for the start of the game 
-    //                Defaults to 12 nodes INCLUDING the castle nodes  
-    //                creates a doubly linked list and intializes castle nodes
+    // Default is 12 nodes INCLUDING the castle nodes 
+    // creates a doubly linked list and intializes castle nodes
+    Bridge();
     
-    ~Bridge();
-    // destructor
     // postcondition: deletes the bridge
+    ~Bridge();
 
-    Bridge(const Bridge&);
-    // copy constructor 
     // postcondition: creates a deep copy of the bridge 
+    Bridge(const Bridge& other);
 
+    // poscondition: assigns the right side to the left side. 
     Bridge& operator=(const Bridge& other);
 
     // managing nodes
-    bool insertCard(const int& leftNode, const int& rightNode, NodeCard* nodeCard);
-    //postcondition: attaches all the temporarily attached cards onto the bridge
-
-    bool removeNode(const int& targetNode);
-    // postcondition: removes a node at targeNode index
     
+    // precondition: leftNode and rightNode must be next to each other
+    // postcondition: attches the nodeCard onto the bridge inbetween the two nodes
+    // attches to the left side first. 
+    bool insertCard(const int& leftNode, const int& rightNode, NodeCard* nodeCard);
+
+    // precondition: node must be a valid node
+    // postcondition: removes a node at targeNode index
+    bool removeNode(const int& targetNode);
+    
+    // precondition: the targetNode must be a valid node
+    // postcondition: attaches a modifier card at the end of the card strand at the targetNode. 
     bool attachModifierCard(const int& targetNode, ModifierCard* modifier);
-    // postcondition: attached a modifier card at the end of the card strand at a specific node 
     
     // validation
-    bool isValidNodePlacement(const int& leftNode, const int& rightNode) const;
-    // postcondition: checks if a node can be created between the two nodes 
-    // returns true if you can and false if you cannot
     
-    bool isValidNode(const int& target) const; 
+    // postcondition: checks if a node can be created between the two nodes 
+    // returns true if you can
+    // returns false if you cannot
+    bool isValidNodePlacement(const int& leftNode, const int& rightNode) const;
+    
     // postcondition: checks the node is within the bounds of the bridge
     // since castle nodes cannot be edited, those nodes will return FALSE 
-    // returns true if it is false if it isnt
+    // returns true if it is within the bounds 
+    // returns false if it if not within the bounds
+    bool isValidNode(const int& target) const; 
 
-    int castleNodeCheck(const Node* node) const;
     // postcondition: checks whether or not the node is a castle node or not. 
-    // returns 0 for false, 1 for player 1 castle, 2 for player 2 castle
-
+    // returns 0 for false
+    // returns 1 for player 1 castle
+    // returns 2 for player 2 castle
+    int castleNodeCheck(const Node* node) const;
+    
     // ---- Text UI support ----
-    void printBridge() const;
+
     // postcondition: prints the bridge
+    void printBridge() const;
 
 private:
     Node* player1Castle;
