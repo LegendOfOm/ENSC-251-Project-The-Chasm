@@ -1,7 +1,6 @@
 #include "Player.hpp"
 
 // Constructor/Destructor
-
 Player::Player(int playerId, Node* startingCastle)
     : playerId(playerId),
       currentNode(startingCastle),
@@ -17,8 +16,39 @@ Player::Player(int playerId, Node* startingCastle)
 Player::~Player() {
 }
 
-// Identity/Position
+Player::Player(const Player& other)
+    : playerId(other.playerId),
+      currentNode(other.currentNode),
+      castleNode(other.castleNode),
+      handSize(other.handSize),
+      won(other.won),
+      activatedCardsThisTurn(other.activatedCardsThisTurn) 
+{
+    for (int i = 0; i < MAX_HAND_SIZE; i++) {
+        hand[i] = other.hand[i]; 
+    }
+}
 
+Player& Player::operator=(const Player& other) {
+    if (this == &other) {
+        return *this; 
+    }
+
+    playerId = other.playerId;
+    currentNode = other.currentNode;
+    castleNode = other.castleNode;
+    handSize = other.handSize;
+    won = other.won;
+    activatedCardsThisTurn = other.activatedCardsThisTurn;
+
+    for (int i = 0; i < MAX_HAND_SIZE; i++) {
+        hand[i] = other.hand[i]; 
+    }
+
+    return *this;
+}
+
+// Identity/Position
 int Player::getPlayerId() const {
     return playerId;
 }
@@ -36,7 +66,6 @@ Node* Player::getCastleNode() const {
 }
 
 // Drawing Phase
-
 bool Player::addCardToHand(Card* card) {
     if (card == nullptr || isHandFull()) {
         return false;
@@ -49,7 +78,6 @@ bool Player::addCardToHand(Card* card) {
 bool Player::removeCardFromHand(Card* card) {
     for (int i = 0; i < handSize; i++) {
         if (hand[i] == card) {
-            // shift every card after it down by one to close the gap
             for (int j = i; j < handSize - 1; j++) {
                 hand[j] = hand[j + 1];
             }
@@ -58,7 +86,7 @@ bool Player::removeCardFromHand(Card* card) {
             return true;
         }
     }
-    return false; // if card wasn't found in hand, return false
+    return false; 
 }
 
 int Player::getHandSize() const {
@@ -67,7 +95,7 @@ int Player::getHandSize() const {
 
 Card* Player::getCardInHand(int index) const {
     if (index < 0 || index >= handSize) {
-        return nullptr; // in case out of range index, require caller to check bounds
+        return nullptr; 
     }
     return hand[index];
 }

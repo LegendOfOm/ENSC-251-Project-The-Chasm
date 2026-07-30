@@ -14,41 +14,43 @@ public:
     static const int CARDS_DRAWN_PER_TURN = 3;
 
     Player(int playerId, Node* startingCastle);
-    // postcondition initializing player start positions
+    // postcondition for initializing player starting positions
     ~Player();
+    Player(const Player& other);
+    // postcondition creating copy of other player
+    Player& operator=(const Player& other);
+    // postcondition assigns other player values to this player
 
-    // Identity/Position
     int getPlayerId() const;
     // postcondition returns the player id
     Node* getCurrentNode() const;
-    // postcondition returns the node of the current node
+    // postcondition returns the node of current node
     void setCurrentNode(Node* node);
-    // postcondition sets the current node to a new node
+    // postcondition sets the current node to new node
     Node* getCastleNode() const;
-    // postcondition returns the castle node
+    // postcondition returns castle node
 
     // Drawing Phase
     bool addCardToHand(Card* card);
-    
-    bool removeCardFromHand(Card* card); 
-    
+    // postcondition adds a card to the hand if not full
+    bool removeCardFromHand(Card* card);
+    // postcondition removes card from the hand if present
     int getHandSize() const;
-    
+    // postcondition returns number of cards in hand at the time
     Card* getCardInHand(int index) const;
-    
+    // postcondition returns the card at the given index and nullptr if out of range
     bool isHandFull() const;
-    
+    // postcondition returns whether hand has reached MAX_HAND_SIZE
 
     // Moving Phase
     bool hasActivated(const Node* node) const;
+    // postcondition returns whether node already has been activated this turn
     void markActivated(Node* landedNode);
-    // marks the node as already activated
     void resetActivatedCardsForNewTurn();
-    //resets all activated nodes
 
     // Win Condition
     bool hasWon() const;
-    // whether player has won or not
+    // win or not
     void setWon(bool won);
 
 private:
@@ -61,4 +63,4 @@ private:
     std::vector<Node*> activatedCardsThisTurn;  
 };
 
-#endif // PLAYER_H
+#endif 
