@@ -24,9 +24,9 @@ PortalNode* PortalNode::getConnectedPortal() const
 
 std::string PortalNode::output() const
 {
-    if (colour == "Red")
+    if (colour == "Yellow")
     {
-        return "\033[31m[Portal]\033[0m";
+        return "\033[33m[Portal]\033[0m";
     }
 
     if (colour == "Blue")
@@ -34,9 +34,9 @@ std::string PortalNode::output() const
         return "\033[34m[Portal]\033[0m";
     }
 
-    if (colour == "Green")
+    if (colour == "Purple")
     {
-        return "\033[32m[Portal]\033[0m";
+        return "\033[35m[Portal]\033[0m";
     }
 
     return "[Portal]";
