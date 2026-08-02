@@ -10,7 +10,9 @@ int BoostNode::getMovementAmount() const
 
 std::string BoostNode::output() const
 {
-    return "[BNod+" + std::to_string(boostAmount) + "]";
+    const std::string colorCode = "\033[32m"; // Green color code
+    const std::string resetCode = "\033[0m"; // Reset color code
+    return colorCode + "[BNod+" + std::to_string(boostAmount) + "]" + resetCode;
 }
 
 BoostNode* BoostNode::clone() const
