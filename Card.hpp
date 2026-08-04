@@ -1,16 +1,6 @@
 #ifndef CARD_HPP
 #define CARD_HPP
-#include "ModifierCard.hpp"
-#include "Booster.hpp"
-#include "Dynamite.hpp"
-#include "Multiplier.hpp"
-#include "Recoiler.hpp"
 
-#include "NodeCard.hpp"
-#include "BoosterNode.hpp"
-#include "DiceNode.hpp"
-#include "PortalNode.hpp"
-#include "RecoilNode.hpp"
 #include <string>
 
 class Card
