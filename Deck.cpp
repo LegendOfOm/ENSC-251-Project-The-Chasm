@@ -57,9 +57,36 @@ void Deck::generateStartingDeck() {
     }
 }
 
+bool Deck::addCard(Card* card) {
+    if (deckSize >= MAX_DECK_SIZE) return false;
+    cards[deckSize] = card;
+    deckSize++;
+    return true;
+}
+
 void Deck::generateDeckForState(int bridgeSize, int player1NodeIndex, int player2NodeIndex) {
-    clearDeck();
     //I kinda feel bad for leaving this and the card generation logic actually D; have fun tho :D
+    
+    // -hanyong- below is a generated deck i got from AI. used python to run a monte carlo tune. 
+    // i do not know if we should keep this since its technically generated using AI. 
+    // Auto-generated deck composition (50 cards).
+    clearDeck();
+    for (int i = 0; i < 5; ++i) addCard(new NodeCard());   // Node
+    for (int i = 0; i < 6; ++i) addCard(new BoostNode(1));   // Boost +1
+    for (int i = 0; i < 4; ++i) addCard(new BoostNode(2));   // Boost +2
+    for (int i = 0; i < 2; ++i) addCard(new BoostNode(3));   // Boost +3
+    for (int i = 0; i < 3; ++i) addCard(new RecoilNode(1));   // Recoil -1
+    for (int i = 0; i < 2; ++i) addCard(new RecoilNode(2));   // Recoil -2
+    for (int i = 0; i < 1; ++i) addCard(new DiceNode());   // Dice Node
+    for (int i = 0; i < 1; ++i) addCard(new PortalNode("Blue"));   // Portal Node
+    for (int i = 0; i < 5; ++i) addCard(new Booster(1));   // Booster +1
+    for (int i = 0; i < 3; ++i) addCard(new Booster(2));   // Booster +2
+    for (int i = 0; i < 4; ++i) addCard(new Recoiler(1));   // Recoiler -1
+    for (int i = 0; i < 2; ++i) addCard(new Recoiler(2));   // Recoiler -2
+    for (int i = 0; i < 3; ++i) addCard(new Multiplier(2));   // Multiplier x2
+    for (int i = 0; i < 1; ++i) addCard(new Multiplier(3));   // Multiplier x3
+    for (int i = 0; i < 8; ++i) addCard(new Dynamite());   // Dynamite
+    shuffleDeck();
 }
 
 void Deck::shuffleDeck() {
