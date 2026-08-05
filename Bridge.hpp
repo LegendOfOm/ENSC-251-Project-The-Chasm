@@ -42,6 +42,9 @@ public:
 
     // managing nodes
     
+
+    int castleNodeCheck(const Node* node) const;
+    
     // precondition: leftNode and rightNode must be next to each other
     // postcondition: attches the nodeCard onto the bridge inbetween the two nodes
     // attches to the left side first. 

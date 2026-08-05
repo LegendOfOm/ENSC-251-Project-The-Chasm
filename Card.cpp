@@ -14,6 +14,11 @@ std::string Card::getName() const
     return name;
 }
 
+Card* Card::clone() const
+{
+    return new Card(*this);
+}
+
 std::string Card::output() const
 {
     return name;

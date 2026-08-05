@@ -2,6 +2,17 @@
 #include "Card.hpp"
 #include <iostream>
 #include <string>
+#include "ModifierCard.hpp"
+#include "Booster.hpp"
+#include "Dynamite.hpp"
+#include "Multiplier.hpp"
+#include "Recoiler.hpp"
+
+#include "NodeCard.hpp"
+#include "BoosterNode.hpp"
+#include "DiceNode.hpp"
+#include "PortalNode.hpp"
+#include "RecoilNode.hpp"
 
 Deck::Deck() : deckSize(0) {
 
