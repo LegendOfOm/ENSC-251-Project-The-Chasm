@@ -7,13 +7,23 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "main.cpp",
+                "test.cpp",
                 "GameLogic.cpp",
                 "Player.cpp",
                 "Bridge.cpp",
+                "BridgeVisual.cpp",
+                "Deck.cpp",
                 "Card.cpp",
                 "ModifierCard.cpp",
                 "NodeCard.cpp",
+                "BoosterNode.cpp",
+                "RecoilNode.cpp",
+                "DiceNode.cpp",
+                "PortalNode.cpp",
+                "Booster.cpp",
+                "Recoiler.cpp",
+                "Mutiplier.cpp",
+                "Dynamite.cpp",
                 "-o",
                 "${workspaceFolder}\\main.exe"
             ],
@@ -27,7 +37,7 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "Compiles main.cpp and all translation units it depends on (GameLogic, Player, Bridge, Card, ModifierCard, NodeCard)."
+            "detail": "Compiles test.cpp and every other translation unit. main.cpp is excluded on purpose: test.cpp provides its own main(), so linking both would be a duplicate-symbol error."
         }
     ],
     "version": "2.0.0"
