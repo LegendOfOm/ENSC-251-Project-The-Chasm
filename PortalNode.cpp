@@ -39,6 +39,11 @@ std::string PortalNode::output() const
         return "\033[35m[Portal]\033[0m";
     }
 
+    if (colour == "Orange")
+    {
+        return "\033[38;5;208m[Portal]\033[0m";
+    }
+
     return "[Portal]";
 }
 

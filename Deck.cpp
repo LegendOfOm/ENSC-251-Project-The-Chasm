@@ -24,7 +24,9 @@
 #include "PortalNode.hpp"
 #include "RecoilNode.hpp"
 
-Deck::Deck() : deckSize(0) {
+#include <algorithm>
+#include <cmath>
+Deck::Deck() : deckSize(0), deckNumber(0), u_previous(0) {
 
 }
 
@@ -86,31 +88,118 @@ bool Deck::addCard(Card* card) {
 }
 
 void Deck::generateDeckForState(int bridgeSize, int player1NodeIndex, int player2NodeIndex) {
-    //I kinda feel bad for leaving this and the card generation logic actually D; have fun tho :D
-    
-    // -hanyong- below is a generated deck i got from AI. used python to run a monte carlo tune. 
-    // i do not know if we should keep this since its technically generated using AI. 
-    // Auto-generated deck composition (50 cards).
     clearDeck();
-    for (int i = 0; i < 5; ++i) addCard(new NodeCard());   // Node
-    for (int i = 0; i < 6; ++i) addCard(new BoostNode(1));   // Boost +1
-    for (int i = 0; i < 4; ++i) addCard(new BoostNode(2));   // Boost +2
-    for (int i = 0; i < 2; ++i) addCard(new BoostNode(3));   // Boost +3
-    for (int i = 0; i < 3; ++i) addCard(new RecoilNode(1));   // Recoil -1
-    for (int i = 0; i < 2; ++i) addCard(new RecoilNode(2));   // Recoil -2
-    for (int i = 0; i < 1; ++i) addCard(new DiceNode());   // Dice Node
-    for (int i = 0; i < 2; ++i) addCard(new PortalNode("Blue"));   // Portal Node
-    for (int i = 0; i < 5; ++i) addCard(new Booster(1));   // Booster +1
-    for (int i = 0; i < 3; ++i) addCard(new Booster(2));   // Booster +2
-    for (int i = 0; i < 4; ++i) addCard(new Recoiler(1));   // Recoiler -1
-    for (int i = 0; i < 2; ++i) addCard(new Recoiler(2));   // Recoiler -2
-    for (int i = 0; i < 3; ++i) addCard(new Multiplier(2));   // Multiplier x2
-    for (int i = 0; i < 1; ++i) addCard(new Multiplier(3));   // Multiplier x3
-    for (int i = 0; i < 7; ++i) addCard(new Dynamite());   // Dynamite
-    shuffleDeck();
-
-
     
+    int distanceToFinishFor1 = bridgeSize - player1NodeIndex;
+    int distanceToFinishFor2 = player2NodeIndex;
+    int minDistanceToFinish = std::min(distanceToFinishFor1, distanceToFinishFor2);
+    const double maxWantedDeckGeneration = 3.0;
+    const double startingBridgeLength = 12.0;
+    const double startingDistanceToCross = startingBridgeLength - 1;
+    const double BLOAT_SPAN = 2.0; // just a number to determine when the u_bloat saturates
+    const int TIERS = 4;
+    
+    // how far the game has gone
+    double u_time  = std::clamp(deckNumber / maxWantedDeckGeneration,                                      0.0, 1.0);
+    // how big the the bridge has gotten
+    double u_bloat = std::clamp((bridgeSize - startingBridgeLength) / (BLOAT_SPAN * startingBridgeLength), 0.0, 1.0);
+    // how far the player ahead must travel
+    double u_dist  = std::clamp((minDistanceToFinish - startingDistanceToCross) / startingDistanceToCross, 0.0, 1.0);
+    // calculate raw urgency value
+    double u_raw = 0.30*u_time + 0.10*u_bloat + 0.60*u_dist;
+    // compare the highest urgency. this way, the urgency always increases
+    double u = std::max(u_previous, u_raw);
+    // calculate the tiers
+    int tier = round(u * (TIERS - 1));
+    
+    buildTier(tier);
+
+    deckSize = 50;
+    shuffleDeck();
+}
+
+void Deck::buildTier(int tier)
+{
+    clearDeck();
+    switch (tier) {
+    case 0:   // neutral
+        for (int i = 0; i < 7; ++i) addCard(new NodeCard());      // Node
+        for (int i = 0; i < 3; ++i) addCard(new BoostNode(1));    // Boost +1
+        for (int i = 0; i < 2; ++i) addCard(new BoostNode(2));    // Boost +2
+        for (int i = 0; i < 1; ++i) addCard(new BoostNode(3));    // Boost +3
+        for (int i = 0; i < 8; ++i) addCard(new RecoilNode(1));   // Recoil -1
+        for (int i = 0; i < 4; ++i) addCard(new RecoilNode(2));   // Recoil -2
+        for (int i = 0; i < 1; ++i) addCard(new DiceNode());      // Dice Node
+        addCard(new PortalNode("Yellow"));
+        addCard(new PortalNode("Yellow"));   // linked pair 1
+        for (int i = 0; i < 5; ++i) addCard(new Booster(1));      // Booster +1
+        for (int i = 0; i < 3; ++i) addCard(new Booster(2));      // Booster +2
+        for (int i = 0; i < 5; ++i) addCard(new Recoiler(1));     // Recoiler -1
+        for (int i = 0; i < 2; ++i) addCard(new Recoiler(2));     // Recoiler -2
+        for (int i = 0; i < 3; ++i) addCard(new Multiplier(2));   // Multiplier x2
+        for (int i = 0; i < 1; ++i) addCard(new Multiplier(3));   // Multiplier x3
+        for (int i = 0; i < 3; ++i) addCard(new Dynamite());      // Dynamite
+        break;
+ 
+    case 1:   // easing
+        for (int i = 0; i < 5; ++i) addCard(new NodeCard());      // Node
+        for (int i = 0; i < 4; ++i) addCard(new BoostNode(1));    // Boost +1
+        for (int i = 0; i < 3; ++i) addCard(new BoostNode(2));    // Boost +2
+        for (int i = 0; i < 1; ++i) addCard(new BoostNode(3));    // Boost +3
+        for (int i = 0; i < 4; ++i) addCard(new RecoilNode(1));   // Recoil -1
+        for (int i = 0; i < 2; ++i) addCard(new RecoilNode(2));   // Recoil -2
+        for (int i = 0; i < 1; ++i) addCard(new DiceNode());      // Dice Node
+        addCard(new PortalNode("Blue"));
+        addCard(new PortalNode("Blue"));   // linked pair 1
+        for (int i = 0; i < 5; ++i) addCard(new Booster(1));      // Booster +1
+        for (int i = 0; i < 3; ++i) addCard(new Booster(2));      // Booster +2
+        for (int i = 0; i < 5; ++i) addCard(new Recoiler(1));     // Recoiler -1
+        for (int i = 0; i < 2; ++i) addCard(new Recoiler(2));     // Recoiler -2
+        for (int i = 0; i < 4; ++i) addCard(new Multiplier(2));   // Multiplier x2
+        for (int i = 0; i < 1; ++i) addCard(new Multiplier(3));   // Multiplier x3
+        for (int i = 0; i < 8; ++i) addCard(new Dynamite());      // Dynamite
+        break;
+ 
+    case 2:   // closing
+        for (int i = 0; i < 2; ++i) addCard(new NodeCard());      // Node
+        for (int i = 0; i < 4; ++i) addCard(new BoostNode(1));    // Boost +1
+        for (int i = 0; i < 3; ++i) addCard(new BoostNode(2));    // Boost +2
+        for (int i = 0; i < 1; ++i) addCard(new BoostNode(3));    // Boost +3
+        for (int i = 0; i < 2; ++i) addCard(new RecoilNode(1));   // Recoil -1
+        for (int i = 0; i < 1; ++i) addCard(new RecoilNode(2));   // Recoil -2
+        for (int i = 0; i < 1; ++i) addCard(new DiceNode());      // Dice Node
+        addCard(new PortalNode("Purple"));
+        addCard(new PortalNode("Purple"));   // linked pair 1
+        for (int i = 0; i < 6; ++i) addCard(new Booster(1));      // Booster +1
+        for (int i = 0; i < 4; ++i) addCard(new Booster(2));      // Booster +2
+        for (int i = 0; i < 5; ++i) addCard(new Recoiler(1));     // Recoiler -1
+        for (int i = 0; i < 2; ++i) addCard(new Recoiler(2));     // Recoiler -2
+        for (int i = 0; i < 4; ++i) addCard(new Multiplier(2));   // Multiplier x2
+        for (int i = 0; i < 1; ++i) addCard(new Multiplier(3));   // Multiplier x3
+        for (int i = 0; i < 12; ++i) addCard(new Dynamite());      // Dynamite
+        break;
+ 
+    case 3:   // forced
+        for (int i = 0; i < 1; ++i) addCard(new NodeCard());      // Node
+        for (int i = 0; i < 3; ++i) addCard(new BoostNode(1));    // Boost +1
+        for (int i = 0; i < 2; ++i) addCard(new BoostNode(2));    // Boost +2
+        for (int i = 0; i < 1; ++i) addCard(new BoostNode(3));    // Boost +3
+        for (int i = 0; i < 1; ++i) addCard(new DiceNode());      // Dice Node
+        addCard(new PortalNode("Blue"));
+        addCard(new PortalNode("Blue"));   // linked pair 1
+        for (int i = 0; i < 6; ++i) addCard(new Booster(1));      // Booster +1
+        for (int i = 0; i < 4; ++i) addCard(new Booster(2));      // Booster +2
+        for (int i = 0; i < 5; ++i) addCard(new Recoiler(1));     // Recoiler -1
+        for (int i = 0; i < 2; ++i) addCard(new Recoiler(2));     // Recoiler -2
+        for (int i = 0; i < 5; ++i) addCard(new Multiplier(2));   // Multiplier x2
+        for (int i = 0; i < 1; ++i) addCard(new Multiplier(3));   // Multiplier x3
+        for (int i = 0; i < 17; ++i) addCard(new Dynamite());      // Dynamite
+        break;
+ 
+    default:
+        buildTier(0);
+        break;
+    }
 }
 
 void Deck::shuffleDeck() {
