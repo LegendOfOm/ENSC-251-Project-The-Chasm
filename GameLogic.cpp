@@ -40,6 +40,7 @@ void GameLogic::runTurn() {
     drawingPhase(player2);
     placementChoice p1choice = placingPhase(player1);
     placementChoice p2choice = placingPhase(player2);
+    resolvePlacements(p1choice, p2choice);
     movingPhase(player1);
     movingPhase(player2);
     turnNumber++;
@@ -129,6 +130,32 @@ GameLogic::placementChoice GameLogic::placingPhase(Player& player)
             continue;
         }
 
+        NodeCard* nodeCard = dynamic_cast<NodeCard*>(choice.card);
+        if (nodeCard != nullptr) {
+            while(true){
+                std::cout << "Enter the 2 adjacent nodes you want to place the card between: ";
+                std::cin >> choice.leftNode >> choice.rightNode;
+                if (bridge.isValidNodePlacement(choice.leftNode, choice.rightNode)) {
+                    break;
+                }
+
+                std::cout <<"those nodes are not adjacent." << std::endl;
+                
+            }
+        } else {
+            ModifierCard* modifierCard = dynamic_cast<ModifierCard*>(choice.card);
+            if (modifierCard != nullptr) {
+                while (true) {
+                    std::cout << "Enter the node you want to place the modifier on: ";
+                    std::cin >> choice.targetNode;
+                    if (bridge.isValidNode(choice.targetNode)) {
+                        break;
+                    }
+                    std::cout << "Not valid, please try again." << std::endl;
+                }
+            }
+        }
+
         choice.valid = true;
 
         std::cout << "Player "
@@ -141,6 +168,94 @@ GameLogic::placementChoice GameLogic::placingPhase(Player& player)
     }
 
     return choice;
+}
+
+bool GameLogic::applyPlacement(placementChoice& choice) {
+    if (!choice.valid || choice.card == nullptr || choice.player == nullptr) {
+        return false;
+    }
+
+    Dynamite* dynamite = dynamic_cast<Dynamite*>(choice.card);
+    if (dynamite != nullptr) {
+        bool succeeded = bridge.removeNode(choice.targetNode);
+        if (!succeeded) {
+            std::cout << "Failed to remove node at index " << choice.targetNode << std::endl;
+            return false;
+        }
+        choice.player->removeCardFromHand(choice.card);
+        delete dynamite;
+        choice.card = nullptr;
+
+        return true;
+    }
+
+    NodeCard* nodeCard = dynamic_cast<NodeCard*>(choice.card);
+    if (nodeCard != nullptr) {
+        bool succeeded = bridge.insertCard(choice.leftNode, choice.rightNode, nodeCard);
+        if (!succeeded) {
+            return false;
+        }
+
+        choice.player->removeCardFromHand(choice.card);
+        choice.card = nullptr;
+
+        return true;
+    }
+
+    ModifierCard* modifierCard = dynamic_cast<ModifierCard*>(choice.card);
+    if (modifierCard != nullptr) {
+        bool succeeded = bridge.attachModifierCard(choice.targetNode, modifierCard);
+        if (!succeeded) {
+            return false;
+        }
+
+        choice.player->removeCardFromHand(choice.card);
+        choice.card = nullptr;
+
+        return true;
+    }
+
+    return false;
+}
+
+void GameLogic::resolvePlacements(placementChoice& p1choice, placementChoice& p2choice) {
+    NodeCard* p1NodeCard = dynamic_cast<NodeCard*>(p1choice.card);
+    NodeCard* p2NodeCard = dynamic_cast<NodeCard*>(p2choice.card);
+
+    if (p1NodeCard != nullptr && p2NodeCard != nullptr) {
+        bool sameGap = (p1choice.leftNode == p2choice.leftNode && p1choice.rightNode == p2choice.rightNode);
+        
+        if (sameGap) {
+            applyPlacement(p2choice);
+            applyPlacement(p1choice);
+            return;
+        }
+
+        if (p1choice.leftNode > p2choice.leftNode) {
+            applyPlacement(p1choice);
+            applyPlacement(p2choice);
+        } else {
+            applyPlacement(p2choice);
+            applyPlacement(p1choice);
+        }
+
+        return;
+    }
+
+    if (p1NodeCard != nullptr) {
+        applyPlacement(p2choice);
+        applyPlacement(p1choice);
+        return;
+    }
+
+    if (p2NodeCard != nullptr) {
+        applyPlacement(p1choice);
+        applyPlacement(p2choice);
+        return;
+    }
+
+    applyPlacement(p1choice);
+    applyPlacement(p2choice);
 }
 
 void GameLogic::movingPhase(Player& player) {

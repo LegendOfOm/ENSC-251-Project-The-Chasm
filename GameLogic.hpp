@@ -34,9 +34,12 @@ private:
     Player player2;
     int turnNumber;
     bool gameOver;
+    bool applyPlacement(placementChoice& choice);
     Deck deck;
 
     void runTurn();
+
+    void resolvePlacements(placementChoice& p1choice, placementChoice& p2choice);
 
     void checkWinCondition();
 
