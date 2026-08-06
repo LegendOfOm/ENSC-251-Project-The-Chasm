@@ -16,7 +16,7 @@ struct Node {
     Node* left = nullptr;
     Node* right = nullptr;
 
-    NodeCard* nodeCard = nullptr;
+    NodeCard* nodeCard = new NodeCard;
 
     ModifierStrand* beginningOfStrand = nullptr;
 

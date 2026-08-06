@@ -11,7 +11,7 @@
                 "GameLogic.cpp",
                 "Player.cpp",
                 "Bridge.cpp",
-                "BridgeVisual.cpp",
+                "Visual.cpp",
                 "Deck.cpp",
                 "Card.cpp",
                 "ModifierCard.cpp",

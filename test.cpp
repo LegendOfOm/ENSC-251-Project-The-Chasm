@@ -6,7 +6,7 @@
 //
 // BUILD (every .cpp EXCEPT main.cpp, because this file provides its own main):
 //
-//   g++ -std=c++11 -g -o test test.cpp Bridge.cpp BridgeVisual.cpp Card.cpp
+//   g++ -std=c++11 -g -o test test.cpp Bridge.cpp Visual.cpp Card.cpp
 //       NodeCard.cpp ModifierCard.cpp BoosterNode.cpp RecoilNode.cpp DiceNode.cpp
 //       PortalNode.cpp Booster.cpp Recoiler.cpp Mutiplier.cpp Dynamite.cpp
 //       Deck.cpp Player.cpp GameLogic.cpp
@@ -27,11 +27,12 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "Booster.hpp"
 #include "BoosterNode.hpp"
 #include "Bridge.hpp"
-#include "BridgeVisual.hpp"
+#include "Visual.hpp"
 #include "Card.hpp"
 #include "Deck.hpp"
 #include "DiceNode.hpp"
@@ -1323,11 +1324,11 @@ static void test_Bridge()
 }
 
 // =====================================================================================
-// BridgeVisual.cpp
+// Visual.cpp
 // =====================================================================================
-static void test_BridgeVisual()
+static void test_Visual()
 {
-    BridgeVisual visual;
+    Visual visual;
 
     // --- a fresh bridge prints 12 empty nodes joined by separators ---
     {
@@ -1515,10 +1516,201 @@ static void test_main()
 }
 
 // =====================================================================================
+// DEMO -- not a test, nothing is asserted here.
+//
+// Builds one hypothetical mid-game state and prints it three ways so the visuals can be
+// eyeballed:
+//   1. a wrapped board view with position numbers, modifiers and player markers
+//   2. the raw Visual::printBridge() output that the game actually uses today
+//   3. the raw Visual::printHands() output
+//
+// Run the test binary to see it; it prints before the tests do.
+// =====================================================================================
+
+static const int DEMO_NODES_PER_LINE = 7;
+static const int DEMO_CELL_WIDTH = 8;
+
+// Centres plain (escape-code free) text inside a fixed-width column.
+static std::string centre(const std::string& text, int width)
+{
+    int length = static_cast<int>(text.size());
+    if (length >= width) return text.substr(0, width);
+    int left = (width - length) / 2;
+    return std::string(left, ' ') + text + std::string(width - length - left, ' ');
+}
+
+// The 8-visible-character label for one node. Castles get their own marker because the
+// bridge never stores a node card on them.
+static std::string demoCell(const Node* node)
+{
+    if (node->isPlayer1Castle) return "[P1CSTL]";
+    if (node->isPlayer2Castle) return "[P2CSTL]";
+    if (node->nodeCard == nullptr) return "[      ]";
+    return node->nodeCard->output(); // 8 visible chars, may carry ANSI colour
+}
+
+// A compact summary of the modifier strand hanging off a node, e.g. "+1 x2".
+static std::string demoMods(const Node* node)
+{
+    std::string summary;
+    for (const ModifierStrand* s = node->beginningOfStrand; s != nullptr; s = s->next) {
+        ModifierCard* card = s->modifierCard;
+        if (card == nullptr) continue;
+
+        std::string token;
+        if (Booster* booster = dynamic_cast<Booster*>(card)) {
+            token = "+" + std::to_string(booster->getBoostAmount());
+        } else if (Recoiler* recoiler = dynamic_cast<Recoiler*>(card)) {
+            token = std::to_string(recoiler->getRecoilAmount()); // already negative
+        } else if (Multiplier* multiplier = dynamic_cast<Multiplier*>(card)) {
+            token = "x" + std::to_string(multiplier->getMultiplierAmount());
+        } else if (dynamic_cast<Dynamite*>(card) != nullptr) {
+            token = "BOOM";
+        } else {
+            token = "?";
+        }
+
+        if (!summary.empty()) summary += " ";
+        summary += token;
+    }
+    return summary;
+}
+
+// Which messengers are standing on this node.
+static std::string demoWho(const Node* node, const Player& player1, const Player& player2)
+{
+    bool hasP1 = (player1.getCurrentNode() == node);
+    bool hasP2 = (player2.getCurrentNode() == node);
+    if (hasP1 && hasP2) return "P1+P2";
+    if (hasP1) return "P1";
+    if (hasP2) return "P2";
+    return "";
+}
+
+static void demoVisualizeGameState()
+{
+    // ---------------------------------------------------------------------------------
+    // Build the hypothetical state: a bridge that has been played on for a few turns.
+    // ---------------------------------------------------------------------------------
+    Bridge bridge;
+
+    // Cards played onto the bridge, left to right. Each insert pushes the castles apart.
+    bridge.insertCard(1, 2, new BoostNode(3));         // -> index 2
+    bridge.insertCard(2, 3, new RecoilNode(1));        // -> index 3
+    bridge.insertCard(3, 4, new PortalNode("Blue"));   // -> index 4
+    bridge.insertCard(4, 5, new DiceNode());           // -> index 5
+    bridge.insertCard(5, 6, new NodeCard());           // -> index 6
+    bridge.insertCard(6, 7, new BoostNode(1));         // -> index 7
+    bridge.insertCard(7, 8, new PortalNode("Purple")); // -> index 8
+    bridge.insertCard(8, 9, new RecoilNode(2));        // -> index 9
+
+    // Modifiers stacked onto some of those nodes.
+    bridge.attachModifierCard(2, new Booster(1));
+    bridge.attachModifierCard(2, new Multiplier(2));
+    bridge.attachModifierCard(3, new Recoiler(2));
+    bridge.attachModifierCard(5, new Multiplier(3));
+    bridge.attachModifierCard(9, new Dynamite());
+
+    // The two portals link to each other.
+    PortalNode* bluePortal = dynamic_cast<PortalNode*>(nodeAt(bridge, 4)->nodeCard);
+    PortalNode* purplePortal = dynamic_cast<PortalNode*>(nodeAt(bridge, 8)->nodeCard);
+    bluePortal->setConnectedPortal(purplePortal);
+    purplePortal->setConnectedPortal(bluePortal);
+
+    // Messengers part way across.
+    Player player1(1, bridge.getPlayer1Castle());
+    Player player2(2, bridge.getPlayer2Castle());
+    player1.setCurrentNode(nodeAt(bridge, 5));
+    player2.setCurrentNode(nodeAt(bridge, 14));
+
+    // Hands. Player 1 is holding a full hand of 5, player 2 has 4.
+    Card* handCards[9];
+    handCards[0] = new BoostNode(3);
+    handCards[1] = new Multiplier(2);
+    handCards[2] = new Dynamite();
+    handCards[3] = new PortalNode("Yellow");
+    handCards[4] = new Recoiler(1);
+    handCards[5] = new RecoilNode(2);
+    handCards[6] = new Booster(2);
+    handCards[7] = new DiceNode();
+    handCards[8] = new Dynamite();
+    for (int i = 0; i < 5; ++i) player1.addCardToHand(handCards[i]);
+    for (int i = 5; i < 9; ++i) player2.addCardToHand(handCards[i]);
+
+    // A partly drawn deck, so the header can show how much is left.
+    Deck deck;
+    deck.generateDeckForState(bridgeLength(bridge), 5, 14);
+    for (int i = 0; i < 9; ++i) delete deck.drawCard(); // the 9 cards now in hand
+
+    // ---------------------------------------------------------------------------------
+    // 1. Wrapped board view.
+    // ---------------------------------------------------------------------------------
+    std::cout << "\n";
+    std::cout << "===============================================================\n";
+    std::cout << " THE CHASM        turn 6        deck: " << deck.getDeckSize()
+              << " cards remaining\n";
+    std::cout << "===============================================================\n\n";
+
+    std::vector<Node*> nodes;
+    for (Node* node = bridge.getPlayer1Castle(); node != nullptr; node = node->right) {
+        nodes.push_back(node);
+    }
+
+    for (size_t start = 0; start < nodes.size(); start += DEMO_NODES_PER_LINE) {
+        size_t end = start + DEMO_NODES_PER_LINE;
+        if (end > nodes.size()) end = nodes.size();
+
+        std::string positionLine = " pos  ";
+        std::string boardLine    = "      ";
+        std::string modifierLine = " mods ";
+        std::string playerLine   = " who  ";
+
+        for (size_t i = start; i < end; ++i) {
+            positionLine += centre(std::to_string(i + 1), DEMO_CELL_WIDTH) + " ";
+            boardLine    += demoCell(nodes[i]);
+            boardLine    += (i + 1 < nodes.size()) ? "-" : " ";
+            modifierLine += centre(demoMods(nodes[i]), DEMO_CELL_WIDTH) + " ";
+            playerLine   += centre(demoWho(nodes[i], player1, player2), DEMO_CELL_WIDTH) + " ";
+        }
+
+        std::cout << positionLine << "\n"
+                  << boardLine    << "\n"
+                  << modifierLine << "\n"
+                  << playerLine   << "\n\n";
+    }
+
+    std::cout << " P1 castle is position 1, P2 castle is position " << nodes.size()
+              << ".\n";
+    std::cout << " P1 runs left to right, P2 runs right to left.\n";
+    std::cout << " legend: [BNod+x] boost  [RNod-x] recoil  [Portal] portal  "
+                 "[Dice  ] dice\n";
+    std::cout << "         [Norm  ] plain  [      ] empty   mods: +x booster, "
+                 "-x recoiler, xN multiplier, BOOM dynamite\n\n";
+
+    // ---------------------------------------------------------------------------------
+    // 2 + 3. What the game prints today, straight from Visual.
+    // ---------------------------------------------------------------------------------
+    Visual visual;
+
+    std::cout << "--- Visual::printBridge() ------------------------------------\n";
+    visual.printBridge(bridge);
+    std::cout << "\n\n";
+
+    std::cout << "--- Visual::printHands() -------------------------------------\n";
+    visual.printHands(player1, player2);
+    std::cout << "\n";
+
+    // The bridge owns the cards played onto it; the hands are the demo's to clean up.
+    for (int i = 0; i < 9; ++i) delete handCards[i];
+}
+
+// =====================================================================================
 // Entry point
 // =====================================================================================
 int main()
 {
+    demoVisualizeGameState();
+
     std::cout << "=== The Chasm - unit tests ===" << std::endl;
 
     std::cout << "\n[cards]" << std::endl;
@@ -1538,7 +1730,7 @@ int main()
     runTest("Deck.cpp", test_Deck);
     runTest("Player.cpp", test_Player);
     runTest("Bridge.cpp", test_Bridge);
-    runTest("BridgeVisual.cpp", test_BridgeVisual);
+    runTest("Visual.cpp", test_Visual);
 
     std::cout << "\n[game flow]" << std::endl;
     runTest("GameLogic.cpp", test_GameLogic);
@@ -1546,5 +1738,9 @@ int main()
 
     std::cout << "\n=== all " << g_tests << " tests passed (" << g_checks
               << " assertions) ===" << std::endl;
+
+
+
+    
     return 0;
 }
