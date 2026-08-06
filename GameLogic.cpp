@@ -102,7 +102,9 @@ void GameLogic::drawingPhase(Player& player) {
                 std::cout << "Player " << player.getPlayerId() << " drew card: " << drawnCard->getName() << std::endl;
             } 
         } else {
-            std::cout << "Deck is empty. Cannot draw more cards." << std::endl;
+            NodeCard* drawnCard = new NodeCard();
+            player.addCardToHand(drawnCard);
+            std::cout << "Deck is empty. Drew node cards." << std::endl;
             break;
         }
     }
