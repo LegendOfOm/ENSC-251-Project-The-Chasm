@@ -185,8 +185,8 @@ void Deck::buildTier(int tier)
         for (int i = 0; i < 2; ++i) addCard(new BoostNode(2));    // Boost +2
         for (int i = 0; i < 1; ++i) addCard(new BoostNode(3));    // Boost +3
         for (int i = 0; i < 1; ++i) addCard(new DiceNode());      // Dice Node
-        addCard(new PortalNode("Blue"));
-        addCard(new PortalNode("Blue"));   // linked pair 1
+        addCard(new PortalNode("Orange"));
+        addCard(new PortalNode("Orange"));   // linked pair 1
         for (int i = 0; i < 6; ++i) addCard(new Booster(1));      // Booster +1
         for (int i = 0; i < 4; ++i) addCard(new Booster(2));      // Booster +2
         for (int i = 0; i < 5; ++i) addCard(new Recoiler(1));     // Recoiler -1
