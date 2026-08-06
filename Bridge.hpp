@@ -91,9 +91,6 @@ private:
 
     int numberOfNodes;
 
-    int castleNodeCheck(const Node* node) const;
-
-
     void modifierStrandDeleter(ModifierStrand*);
     Node* travelToNode(int);
 

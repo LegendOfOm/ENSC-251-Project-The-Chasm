@@ -99,14 +99,14 @@ void Deck::generateDeckForState(int bridgeSize, int player1NodeIndex, int player
     for (int i = 0; i < 3; ++i) addCard(new RecoilNode(1));   // Recoil -1
     for (int i = 0; i < 2; ++i) addCard(new RecoilNode(2));   // Recoil -2
     for (int i = 0; i < 1; ++i) addCard(new DiceNode());   // Dice Node
-    for (int i = 0; i < 1; ++i) addCard(new PortalNode("Blue"));   // Portal Node
+    for (int i = 0; i < 2; ++i) addCard(new PortalNode("Blue"));   // Portal Node
     for (int i = 0; i < 5; ++i) addCard(new Booster(1));   // Booster +1
     for (int i = 0; i < 3; ++i) addCard(new Booster(2));   // Booster +2
     for (int i = 0; i < 4; ++i) addCard(new Recoiler(1));   // Recoiler -1
     for (int i = 0; i < 2; ++i) addCard(new Recoiler(2));   // Recoiler -2
     for (int i = 0; i < 3; ++i) addCard(new Multiplier(2));   // Multiplier x2
     for (int i = 0; i < 1; ++i) addCard(new Multiplier(3));   // Multiplier x3
-    for (int i = 0; i < 8; ++i) addCard(new Dynamite());   // Dynamite
+    for (int i = 0; i < 7; ++i) addCard(new Dynamite());   // Dynamite
     shuffleDeck();
 
 

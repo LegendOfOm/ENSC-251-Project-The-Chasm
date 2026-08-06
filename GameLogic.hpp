@@ -6,6 +6,7 @@
 #include "Deck.hpp"
 
 class Card;
+class PortalNode;
 
 class GameLogic
 {
@@ -48,6 +49,14 @@ private:
     placementChoice placingPhase(Player& player);
 
     void movingPhase(Player& player);
+
+    void movePlayer(Player& player, int amount);
+
+    int getNodeIndex(const Node* targetNode) const;
+
+    int calculateMovement(Node* node);
+
+    void linkPortal(PortalNode* newPortal);
 };
 
 #endif
