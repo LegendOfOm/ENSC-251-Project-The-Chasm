@@ -1,16 +1,18 @@
-#ifndef BRIDGEVISUAL_HPP
-#define BRIDGEVISUAL_HPP
+#ifndef VISUAL_HPP
+#define VISUAL_HPP
 
 #include "Bridge.hpp"
+#include "Player.hpp"
 
-class BridgeVisual
+class Visual
 {
 public:
-    BridgeVisual();
+    Visual();
 
     // postcondition:
     // Prints every node from player 1's castle to player 2's castle.
     void printBridge(const Bridge& bridge) const;
+    void printHands(const Player& player1,const Player& player2) const;
 
 private:
     // precondition:
@@ -24,6 +26,7 @@ private:
     // postcondition:
     // Prints the modifier information attached to a node.
     void printModifiers(const ModifierStrand* strand) const;
+    void printHandHelper(const Player& player) const;
 };
 
 #endif

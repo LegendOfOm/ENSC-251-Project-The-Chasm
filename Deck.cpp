@@ -1,5 +1,15 @@
 #include "Deck.hpp"
 #include "Card.hpp"
+#include "ModifierCard.hpp"
+#include "Booster.hpp"
+#include "Dynamite.hpp"
+#include "Multiplier.hpp"
+#include "Recoiler.hpp"
+#include "NodeCard.hpp"
+#include "BoosterNode.hpp"
+#include "DiceNode.hpp"
+#include "PortalNode.hpp"
+#include "RecoilNode.hpp"
 #include <iostream>
 #include <string>
 #include "ModifierCard.hpp"
@@ -98,6 +108,9 @@ void Deck::generateDeckForState(int bridgeSize, int player1NodeIndex, int player
     for (int i = 0; i < 1; ++i) addCard(new Multiplier(3));   // Multiplier x3
     for (int i = 0; i < 8; ++i) addCard(new Dynamite());   // Dynamite
     shuffleDeck();
+
+
+    
 }
 
 void Deck::shuffleDeck() {

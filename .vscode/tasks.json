@@ -1,0 +1,44 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: g++.exe build main",
+            "command": "C:\\msys64\\mingw64\\bin\\g++.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "test.cpp",
+                "GameLogic.cpp",
+                "Player.cpp",
+                "Bridge.cpp",
+                "Visual.cpp",
+                "Deck.cpp",
+                "Card.cpp",
+                "ModifierCard.cpp",
+                "NodeCard.cpp",
+                "BoosterNode.cpp",
+                "RecoilNode.cpp",
+                "DiceNode.cpp",
+                "PortalNode.cpp",
+                "Booster.cpp",
+                "Recoiler.cpp",
+                "Mutiplier.cpp",
+                "Dynamite.cpp",
+                "-o",
+                "${workspaceFolder}\\main.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Compiles test.cpp and every other translation unit. main.cpp is excluded on purpose: test.cpp provides its own main(), so linking both would be a duplicate-symbol error."
+        }
+    ],
+    "version": "2.0.0"
+}
