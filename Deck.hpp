@@ -41,15 +41,20 @@ public:
     // postcondition: draws a card from the deck at the specified index without returning it  
     
 private:
-    static const int MAX_DECK_SIZE = 35;
+    static const int MAX_DECK_SIZE = 50;
     Card* cards[MAX_DECK_SIZE];
     int deckSize;
+    int deckNumber;
+    double u_previous;
 
     bool addCard(Card* card);
     // postcondition: adds a card to the deck and returns true if successful, false if the deck is full
 
     void clearDeck();
     // postcondition: Deletes all cards in the deck and sets deckSize to 0
+
+    void buildTier(int tier);
+
 
 };
 #endif
