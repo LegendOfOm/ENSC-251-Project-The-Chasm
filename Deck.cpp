@@ -12,23 +12,11 @@
 #include "RecoilNode.hpp"
 #include <iostream>
 #include <string>
-#include "ModifierCard.hpp"
-#include "Booster.hpp"
-#include "Dynamite.hpp"
-#include "Multiplier.hpp"
-#include "Recoiler.hpp"
-
-#include "NodeCard.hpp"
-#include "BoosterNode.hpp"
-#include "DiceNode.hpp"
-#include "PortalNode.hpp"
-#include "RecoilNode.hpp"
-
 #include <algorithm>
 #include <cmath>
-Deck::Deck() : deckSize(0), deckNumber(0), u_previous(0) {
-
-}
+#include <chrono>
+#include <random>
+Deck::Deck() : deckSize(0), deckNumber(0), u_previous(0) {}
 
 Deck::~Deck() {
     clearDeck();
@@ -159,8 +147,8 @@ void Deck::buildTier(int tier)
         for (int i = 0; i < 1; ++i) addCard(new Multiplier(3));   // Multiplier x3
         for (int i = 0; i < 8; ++i) addCard(new Dynamite());      // Dynamite
         break;
- 
-    case 2:   // closing
+        
+        case 2:   // closing
         for (int i = 0; i < 2; ++i) addCard(new NodeCard());      // Node
         for (int i = 0; i < 4; ++i) addCard(new BoostNode(1));    // Boost +1
         for (int i = 0; i < 3; ++i) addCard(new BoostNode(2));    // Boost +2
@@ -203,11 +191,18 @@ void Deck::buildTier(int tier)
 }
 
 void Deck::shuffleDeck() {
-    for (int i = 0; i < deckSize; ++i) {
-        int randomIndex = rand() % deckSize;
-        std::swap(cards[i], cards[randomIndex]);
+    try {
+        std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+        std::shuffle(cards, cards + deckSize, rng);
+    }
+    catch (std::bad_alloc) {
+        std::cout << "you are stupid" << std::endl;
+    }
+    catch (...) {
+        std::cout << "okay, you are REALLY stupid" << std::endl;
     }
 }
+
 
 std::string Deck::outputDeck() const {
     std::string output;
