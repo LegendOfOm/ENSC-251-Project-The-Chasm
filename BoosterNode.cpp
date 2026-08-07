@@ -17,7 +17,7 @@ std::string BoostNode::output() const
     {
         amount = " " + amount;
     }
-    return colorCode + "[BNod+" + amount + "]" + resetCode;
+    return colorCode + "BNod+" + amount + resetCode;
 }
 
 BoostNode* BoostNode::clone() const
