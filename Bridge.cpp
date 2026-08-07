@@ -53,6 +53,7 @@ void Bridge::copyFrom(const Bridge& other) {
     player2Castle = nullptr;
     numberOfNodes = 0;
 
+    // if empty return 
     if (other.player1Castle == nullptr) return;
     
     numberOfNodes = other.numberOfNodes;
@@ -70,6 +71,7 @@ void Bridge::copyFrom(const Bridge& other) {
         myTemporaryptr->right = new Node;
         myTemporaryptr->right->left = myTemporaryptr;
         myTemporaryptr = myTemporaryptr->right;
+        myTemporaryptr->movementAmount = otherTempptr->movementAmount;
         if (otherTempptr->nodeCard != nullptr) {
             myTemporaryptr->nodeCard = otherTempptr->nodeCard->clone();
         }
@@ -117,6 +119,8 @@ bool Bridge::insertCard(const int& leftNode, const int& rightNode, NodeCard* new
     newNode->left = tempptrLeft;
     newNode->right = tempptrRight;
     numberOfNodes++;
+
+    newNode->movementAmount = newNodeCard->getMovementAmount();
     return true;
 }
 
@@ -127,6 +131,8 @@ bool Bridge::attachModifierCard(const int& targetNode, ModifierCard* modifier) {
         tempptr->beginningOfStrand = new ModifierStrand;
         tempptr->beginningOfStrand->modifierCard = modifier;
         tempptr->beginningOfStrand->next = nullptr;
+        tempptr->movementAmount = modifier->getModifiedAmount(tempptr->movementAmount);
+
         return true;
     }
     ModifierStrand* modifierTempptr = tempptr->beginningOfStrand;
@@ -137,6 +143,8 @@ bool Bridge::attachModifierCard(const int& targetNode, ModifierCard* modifier) {
     modifierTempptr = modifierTempptr->next;
     modifierTempptr->modifierCard = modifier;
     modifierTempptr->next = nullptr;
+
+    tempptr->movementAmount = modifier->getModifiedAmount(tempptr->movementAmount);
     return true;
 }
 

@@ -12,3 +12,7 @@ Booster* Booster::clone() const
 {
     return new Booster(*this);
 }
+
+int Booster::getModifiedAmount(int originalMovment) {
+    return originalMovment + boostAmount;
+}

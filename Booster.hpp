@@ -11,6 +11,8 @@ private:
 public:
     Booster(int amount);
     int getBoostAmount() const;
+    virtual int getModifiedAmount(int originalMovment);
+
     virtual Booster* clone() const;
 };
 

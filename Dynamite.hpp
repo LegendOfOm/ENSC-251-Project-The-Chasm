@@ -7,6 +7,9 @@ class Dynamite : public ModifierCard
 {
 public:
     Dynamite();
+
+    virtual int getModifiedAmount(int originalMovment);
+
 };
 
 #endif

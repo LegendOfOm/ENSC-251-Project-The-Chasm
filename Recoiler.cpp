@@ -12,3 +12,7 @@ Recoiler* Recoiler::clone() const
 {
     return new Recoiler(*this);
 }
+
+int Recoiler::getModifiedAmount(int originalMovment) {
+    return originalMovment - recoilAmount;
+}
