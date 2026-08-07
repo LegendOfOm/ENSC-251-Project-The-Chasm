@@ -11,3 +11,8 @@ Multiplier* Multiplier::clone() const
 {
     return new Multiplier(*this);
 }
+
+int Multiplier::getModifiedAmount(int originalMovment) {
+    return originalMovment * multiplierAmount;
+}
+

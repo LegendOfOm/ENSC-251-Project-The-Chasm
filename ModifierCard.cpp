@@ -6,3 +6,7 @@ ModifierCard* ModifierCard::clone() const
 {
     return new ModifierCard(*this);
 }
+
+int ModifierCard::getModifiedAmount(int originalMovment) {
+    return originalMovment;
+}

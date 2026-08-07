@@ -16,6 +16,8 @@ struct Node {
     Node* left = nullptr;
     Node* right = nullptr;
 
+    int movementAmount = 0;
+
     NodeCard* nodeCard = new NodeCard;
 
     ModifierStrand* beginningOfStrand = nullptr;
@@ -41,15 +43,12 @@ public:
     Bridge& operator=(const Bridge& other);
 
     // managing nodes
-    
-
-    int castleNodeCheck(const Node* node) const;
-    
+        
     // precondition: leftNode and rightNode must be next to each other
     // postcondition: attches the nodeCard onto the bridge inbetween the two nodes
     // attches to the left side first. 
     bool insertCard(const int& leftNode, const int& rightNode, NodeCard* nodeCard);
-
+    
     // precondition: node must be a valid node
     // postcondition: removes a node at targeNode index
     bool removeNode(const int& targetNode);
@@ -57,6 +56,7 @@ public:
     // precondition: the targetNode must be a valid node
     // postcondition: attaches a modifier card at the end of the card strand at the targetNode. 
     bool attachModifierCard(const int& targetNode, ModifierCard* modifier);
+
     
     // validation
     
@@ -70,9 +70,10 @@ public:
     // returns true if it is within the bounds 
     // returns false if it if not within the bounds
     bool isValidNode(const int& target) const; 
-
+    
     // postcondition: checks whether or not the node is a castle node or not. 
     // returns 0 for false, 1 for player 1 castle, 2 for player 2 castle
+    int castleNodeCheck(const Node* node) const;
     
     Node* getPlayer1Castle() const;
     // postcondition: returns the castle node of player 1

@@ -1,6 +1,8 @@
 #include "Bridge.hpp"
 #include <iostream>
 #include "NodeCard.hpp"
+#include "DiceNode.hpp"
+#include <typeinfo>
 
 Bridge::Bridge() : numberOfNodes(12) {
     player1Castle = new Node;
@@ -53,6 +55,7 @@ void Bridge::copyFrom(const Bridge& other) {
     player2Castle = nullptr;
     numberOfNodes = 0;
 
+    // if empty return 
     if (other.player1Castle == nullptr) return;
     
     numberOfNodes = other.numberOfNodes;
@@ -70,6 +73,7 @@ void Bridge::copyFrom(const Bridge& other) {
         myTemporaryptr->right = new Node;
         myTemporaryptr->right->left = myTemporaryptr;
         myTemporaryptr = myTemporaryptr->right;
+        myTemporaryptr->movementAmount = otherTempptr->movementAmount;
         if (otherTempptr->nodeCard != nullptr) {
             myTemporaryptr->nodeCard = otherTempptr->nodeCard->clone();
         }
@@ -117,6 +121,12 @@ bool Bridge::insertCard(const int& leftNode, const int& rightNode, NodeCard* new
     newNode->left = tempptrLeft;
     newNode->right = tempptrRight;
     numberOfNodes++;
+    
+    if (typeid(*newNodeCard) == typeid(DiceNode)) {
+        newNode->movementAmount = 0;
+    } else {
+        newNode->movementAmount = newNodeCard->getMovementAmount();
+    }
     return true;
 }
 
@@ -137,6 +147,8 @@ bool Bridge::attachModifierCard(const int& targetNode, ModifierCard* modifier) {
     modifierTempptr = modifierTempptr->next;
     modifierTempptr->modifierCard = modifier;
     modifierTempptr->next = nullptr;
+
+    tempptr->movementAmount = modifier->getModifiedAmount(tempptr->movementAmount);
     return true;
 }
 
@@ -164,7 +176,6 @@ bool Bridge::isValidNode(const int& target) const {
     if (target > 1 && target < numberOfNodes) return true;
     return false;
 }
-
 
 int Bridge::castleNodeCheck(const Node* node) const {
     if (node->isPlayer1Castle) return 1;

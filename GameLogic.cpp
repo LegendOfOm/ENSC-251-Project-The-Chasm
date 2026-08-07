@@ -81,7 +81,7 @@ void GameLogic::runTurn() {
         resolvePlacements(p1choice, p2choice);
     }
 
-    visual.printBridge(bridge);
+    visual.printBridge(bridge, player1, player2);
     std::cout << std::endl;
 
     movingPhase(player1);
