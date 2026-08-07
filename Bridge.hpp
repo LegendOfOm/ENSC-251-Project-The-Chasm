@@ -43,9 +43,7 @@ public:
     Bridge& operator=(const Bridge& other);
 
     // managing nodes
-    
-
-    
+        
     // precondition: leftNode and rightNode must be next to each other
     // postcondition: attches the nodeCard onto the bridge inbetween the two nodes
     // attches to the left side first. 
@@ -58,10 +56,7 @@ public:
     // precondition: the targetNode must be a valid node
     // postcondition: attaches a modifier card at the end of the card strand at the targetNode. 
     bool attachModifierCard(const int& targetNode, ModifierCard* modifier);
-    
-    // postcondition: calculates the movement value of the node depending on the modifier 
-    void calculateNodeValue();
-    
+
     
     // validation
     

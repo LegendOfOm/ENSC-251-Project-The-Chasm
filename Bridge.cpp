@@ -1,6 +1,8 @@
 #include "Bridge.hpp"
 #include <iostream>
 #include "NodeCard.hpp"
+#include "DiceNode.hpp"
+#include <typeinfo>
 
 Bridge::Bridge() : numberOfNodes(12) {
     player1Castle = new Node;
@@ -119,8 +121,12 @@ bool Bridge::insertCard(const int& leftNode, const int& rightNode, NodeCard* new
     newNode->left = tempptrLeft;
     newNode->right = tempptrRight;
     numberOfNodes++;
-
-    newNode->movementAmount = newNodeCard->getMovementAmount();
+    
+    if (typeid(*newNodeCard) == typeid(DiceNode)) {
+        newNode->movementAmount = 0;
+    } else {
+        newNode->movementAmount = newNodeCard->getMovementAmount();
+    }
     return true;
 }
 
@@ -131,8 +137,6 @@ bool Bridge::attachModifierCard(const int& targetNode, ModifierCard* modifier) {
         tempptr->beginningOfStrand = new ModifierStrand;
         tempptr->beginningOfStrand->modifierCard = modifier;
         tempptr->beginningOfStrand->next = nullptr;
-        tempptr->movementAmount = modifier->getModifiedAmount(tempptr->movementAmount);
-
         return true;
     }
     ModifierStrand* modifierTempptr = tempptr->beginningOfStrand;
@@ -172,7 +176,6 @@ bool Bridge::isValidNode(const int& target) const {
     if (target > 1 && target < numberOfNodes) return true;
     return false;
 }
-
 
 int Bridge::castleNodeCheck(const Node* node) const {
     if (node->isPlayer1Castle) return 1;
