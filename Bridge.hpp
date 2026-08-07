@@ -18,7 +18,7 @@ struct Node {
 
     int movementAmount = 0;
 
-    NodeCard* nodeCard = new NodeCard;
+    NodeCard* nodeCard = nullptr;
 
     ModifierStrand* beginningOfStrand = nullptr;
 
@@ -31,6 +31,7 @@ public:
     // postcondition: Initializes the bridge for the start of the game 
     // Default is 12 nodes INCLUDING the castle nodes 
     // creates a doubly linked list and intializes castle nodes
+    // Every node will always have a card. 
     Bridge();
     
     // postcondition: deletes the bridge
@@ -47,6 +48,8 @@ public:
     // precondition: leftNode and rightNode must be next to each other
     // postcondition: attches the nodeCard onto the bridge inbetween the two nodes
     // attches to the left side first. 
+    // It will also update movement amount. exception: portal and dice
+    // portal and dice will keep the movement amount at 0.
     bool insertCard(const int& leftNode, const int& rightNode, NodeCard* nodeCard);
     
     // precondition: node must be a valid node
@@ -55,8 +58,8 @@ public:
     
     // precondition: the targetNode must be a valid node
     // postcondition: attaches a modifier card at the end of the card strand at the targetNode. 
+    // It will also update movement amount. 
     bool attachModifierCard(const int& targetNode, ModifierCard* modifier);
-
     
     // validation
     
@@ -75,16 +78,16 @@ public:
     // returns 0 for false, 1 for player 1 castle, 2 for player 2 castle
     int castleNodeCheck(const Node* node) const;
     
-    Node* getPlayer1Castle() const;
     // postcondition: returns the castle node of player 1
+    Node* getPlayer1Castle() const;
 
-    Node* getPlayer2Castle() const;
     // postcondition: returns the castle node of player 2
+    Node* getPlayer2Castle() const;
 
     // ---- Text UI support ----
 
-    // postcondition: prints the bridge
-    void printBridge() const;
+    // postcondition: returns movement amount
+    int getMovementAmount(Node* targetNode);
 
 private:
     Node* player1Castle;
