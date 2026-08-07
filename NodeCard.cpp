@@ -9,7 +9,7 @@ int NodeCard::getMovementAmount() const
 
 std::string NodeCard::output() const
 {
-    return "[Norm   ]";
+    return "Norm   ";
 }
 
 NodeCard* NodeCard::clone() const

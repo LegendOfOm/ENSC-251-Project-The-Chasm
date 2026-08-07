@@ -25,46 +25,58 @@ void Visual::printBridge(const Bridge& bridge, const Player& player1, const Play
 
 void  Visual::printNode(const Node* node, int index, const Player& player1, const Player& player2) const
 {
-    if ( node == nullptr)
-    {
-        return;
-    }
-    bool player1Here = (node == player1.getCurrentNode());
-    bool player2Here = (node == player2.getCurrentNode());\
-
-    if (player1Here && player2Here)
-    {
-        std::cout << "P1 P2 ";
-    }
-    else if (player1Here)
-    {
-        std::cout << "P1 ";
-    }
-    else if (player2Here)
-    {
-        std::cout << "P2 ";
-    }
-
     if (node->isPlayer1Castle)
     {
-        std::cout << "[|Castle|]";
-    }
-    else if (node->isPlayer2Castle)
-    {
-        std::cout << "[|Castle|]";
+        std::cout << "[|P1|Castle|]";
     }
 
-    else if (node->nodeCard != nullptr)
+    else if (node->isPlayer2Castle)
     {
-        std::cout << node->nodeCard->output();
+        std::cout << "[|P2|Castle|]";
+    }
+
+    else
+    {
+        std::cout << "[|";
+        if (player1.getCurrentNode() == node &&player2.getCurrentNode() == node)
+        {
+            std::cout << "12";
+        }
+        else if (player1.getCurrentNode() == node)
+        {
+            std::cout << "P1";
+        }
+        else if (player2.getCurrentNode() == node)
+        {
+            std::cout << "P2";
+        }
+        else
+        {
+            std::cout << "  ";
+        }
+
+        std::cout << "|";
+
+        if (node->nodeCard != nullptr)
+        {
+            std::cout << node->nodeCard->output();
+        }
+        else
+        {
+            std::cout << "Norm   ";
+        }
+
+        std::cout << "]";
+    }
+    if (index < 10)
+    {
+        std::cout << " " << index;
     }
     else
     {
-        std::cout << "[Norm  ]";
+        std::cout << index;
     }
-    std:: cout << index;
 }
-
 
 void Visual::printHands(const Player& player1,const Player& player2) const
 {
