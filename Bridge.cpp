@@ -2,22 +2,29 @@
 #include <iostream>
 #include "NodeCard.hpp"
 #include "DiceNode.hpp"
+#include "PortalNode.hpp"
 #include <typeinfo>
 
 Bridge::Bridge() : numberOfNodes(12) {
+    // initialize player1castle
     player1Castle = new Node;
     player1Castle->left = nullptr;
     player1Castle->isPlayer1Castle = true;
+    player1Castle->nodeCard = new NodeCard;
     
+    // initialize 10 nodes
     Node* tempptr = player1Castle;
     for (int i = 0; i < 11; i++) {
         tempptr->right = new Node;
         tempptr->right->left = tempptr;
         tempptr = tempptr->right;
+        tempptr->nodeCard = new NodeCard;
     }
 
+    // initialize player2castle
     tempptr->right = nullptr;
     tempptr->isPlayer2Castle = true;
+    tempptr->nodeCard = new NodeCard;
     player2Castle = tempptr; 
 }
 
@@ -58,31 +65,38 @@ void Bridge::copyFrom(const Bridge& other) {
     // if empty return 
     if (other.player1Castle == nullptr) return;
     
+    
     numberOfNodes = other.numberOfNodes;
-    player1Castle = new Node;
     player2Castle = nullptr;
+    // initialize castle node
+    player1Castle = new Node;
     player1Castle->left = nullptr;
+    player1Castle->nodeCard = new NodeCard;
     player1Castle->isPlayer1Castle = true;
     Node* myTemporaryptr = player1Castle;
     ModifierStrand* myModptr;
-    
     numberOfNodes = other.numberOfNodes;
     Node* otherTempptr = other.player1Castle->right;
     ModifierStrand* otherModptr = otherTempptr->beginningOfStrand;
+    
+    // start copying the rest
     while (otherTempptr != other.player2Castle) {
         myTemporaryptr->right = new Node;
         myTemporaryptr->right->left = myTemporaryptr;
         myTemporaryptr = myTemporaryptr->right;
         myTemporaryptr->movementAmount = otherTempptr->movementAmount;
+        // copy the nodecards
         if (otherTempptr->nodeCard != nullptr) {
             myTemporaryptr->nodeCard = otherTempptr->nodeCard->clone();
         }
+        // copy the first modifier
         if (otherModptr != nullptr) {
             myTemporaryptr->beginningOfStrand = new ModifierStrand;
             myModptr = myTemporaryptr->beginningOfStrand;
             myModptr->modifierCard = otherModptr->modifierCard->clone();
             otherModptr = otherModptr->next;
         }
+        // copy the other modifiers 
         while (otherModptr != nullptr) {
             myModptr->next = new ModifierStrand;
             myModptr = myModptr->next;
@@ -92,12 +106,13 @@ void Bridge::copyFrom(const Bridge& other) {
         otherTempptr = otherTempptr->right;
         otherModptr = otherTempptr->beginningOfStrand;
     }
-    
+    // copy the player 2 castle node
     myTemporaryptr->right = new Node;
     myTemporaryptr->right->left = myTemporaryptr;
     myTemporaryptr = myTemporaryptr->right;
     myTemporaryptr->isPlayer2Castle = true;
     player2Castle = myTemporaryptr;
+    player2Castle->nodeCard = new NodeCard;
 }
 
 void Bridge::modifierStrandDeleter(ModifierStrand* tempptr) {
@@ -110,10 +125,11 @@ void Bridge::modifierStrandDeleter(ModifierStrand* tempptr) {
 
 bool Bridge::insertCard(const int& leftNode, const int& rightNode, NodeCard* newNodeCard) {
     if (!isValidNodePlacement(leftNode, rightNode)) return false;
+    // find target node
     Node* tempptrLeft = travelToNode(leftNode);
-    
     Node* tempptrRight = tempptrLeft->right;
     
+    // initialize a new node
     tempptrLeft->right = new Node;
     tempptrRight->left = tempptrLeft->right;
     Node* newNode = tempptrLeft->right;
@@ -122,7 +138,8 @@ bool Bridge::insertCard(const int& leftNode, const int& rightNode, NodeCard* new
     newNode->right = tempptrRight;
     numberOfNodes++;
     
-    if (typeid(*newNodeCard) == typeid(DiceNode)) {
+    // add the movement amount 
+    if (typeid(*newNodeCard) == typeid(DiceNode) || typeid(*newNodeCard) == typeid(PortalNode)) {
         newNode->movementAmount = 0;
     } else {
         newNode->movementAmount = newNodeCard->getMovementAmount();
@@ -159,6 +176,7 @@ bool Bridge::removeNode(const int& targetNode) {
     Node* tempptrLeft = tempptr->left;
     Node* tempptrRight = tempptr->right;
     if (tempptr->beginningOfStrand != nullptr) modifierStrandDeleter(tempptr->beginningOfStrand);
+    delete tempptr->nodeCard;
     delete tempptr;
 
     tempptrLeft->right = tempptrRight;
@@ -191,23 +209,14 @@ Node* Bridge::getPlayer2Castle() const {
         return player2Castle;
 }
 
-
-void Bridge::printBridge() const {
-    Node* tempptr = player1Castle;
-    std::cout << "[P1 Castle] - "; 
-    int index = 1;
-    while (tempptr->isPlayer2Castle == false) {
-        std::cout << "[|" << index << "|" << tempptr->nodeCard->output() << "] - ";
-        index++; 
-        tempptr = tempptr->right; 
-    }
-    std::cout << "[P2 Castle]"; 
-}
-
 Node* Bridge::travelToNode(int theNode) {
     Node* tempptr = player1Castle;
     for (int i = 1; i < theNode; i++) {
         tempptr = tempptr->right;
     }
     return tempptr;
+}
+
+int Bridge::getMovementAmount(Node* targetNode) {
+    return targetNode->movementAmount;   
 }

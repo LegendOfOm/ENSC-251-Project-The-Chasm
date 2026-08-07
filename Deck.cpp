@@ -101,8 +101,9 @@ void Deck::generateDeckForState(int bridgeSize, int player1NodeIndex, int player
     int tier = round(u * (TIERS - 1));
     
     buildTier(tier);
-
-    deckSize = 50;
+    
+    deckNumber++;
+    u_previous = u;
     shuffleDeck();
 }
 
@@ -219,3 +220,5 @@ bool Deck::isEmpty() const {
         return false; // Deck is not empty
     }
 }
+
+int Deck::getDeckSize() const { return deckSize; }
