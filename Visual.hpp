@@ -11,7 +11,7 @@ public:
 
     // postcondition:
     // Prints every node from player 1's castle to player 2's castle.
-    void printBridge(const Bridge& bridge) const;
+    void printBridge(const Bridge& bridge, const Player& player1, const Player& player2) const;
     void printHands(const Player& player1,const Player& player2) const;
 
 private:
@@ -19,13 +19,12 @@ private:
     // node points to a valid bridge node.
     // postcondition:
     // Prints the NodeCard stored inside the node.
-    void printNode(const Node* node) const;
+    void printNode(const Node* node, int index, const Player& player1, const Player& player2) const;
 
     // precondition:
     // strand points to the beginning of a modifier strand or is nullptr.
     // postcondition:
     // Prints the modifier information attached to a node.
-    void printModifiers(const ModifierStrand* strand) const;
     void printHandHelper(const Player& player) const;
 };
 
