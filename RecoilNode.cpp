@@ -12,7 +12,12 @@ std::string RecoilNode::output() const
 {
     const std::string colorCode = "\033[31m"; // Red color code
     const std::string resetCode = "\033[0m"; // Reset color code
-    return colorCode + "[RNod-" + std::to_string(recoilAmount) + "]" + resetCode;
+    std::string amount = std::to_string(recoilAmount);
+    if (recoilAmount < 10)
+    {
+        amount = " " + amount;
+    }
+    return colorCode + "[RNod-" + amount + "]" + resetCode;
 }
 
 RecoilNode* RecoilNode::clone() const

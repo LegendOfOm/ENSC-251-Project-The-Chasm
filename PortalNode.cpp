@@ -44,7 +44,7 @@ std::string PortalNode::output() const
         return "\033[38;5;208m[Portal]\033[0m";
     }
 
-    return "[Portal]";
+    return "[Portal ]";
 }
 
 PortalNode* PortalNode::clone() const
