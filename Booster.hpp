@@ -12,7 +12,7 @@ public:
     Booster(int amount);
     int getBoostAmount() const;
     virtual int getModifiedAmount(int originalMovment);
-    std::string output() const override;
+    std::string Handoutput() const override;
     virtual Booster* clone() const;
 };
 

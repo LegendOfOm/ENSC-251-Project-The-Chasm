@@ -16,7 +16,7 @@ int Multiplier::getModifiedAmount(int originalMovment) {
     return originalMovment * multiplierAmount;
 }
 
-std::string Multiplier::output() const
+std::string Multiplier::Handoutput() const
 {
     return "Multiplier x" + std::to_string(multiplierAmount);
 }

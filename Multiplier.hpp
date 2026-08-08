@@ -12,7 +12,7 @@ public:
     Multiplier(int amount);
     int getMultiplierAmount() const;
     virtual int getModifiedAmount(int originalMovment);
-    std::string output() const override;
+    std::string Handoutput() const override;
     virtual Multiplier* clone() const;
 };
 

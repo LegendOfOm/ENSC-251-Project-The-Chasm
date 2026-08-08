@@ -17,7 +17,7 @@ int Recoiler::getModifiedAmount(int originalMovment) {
     return originalMovment - recoilAmount;
 }
 
-std::string Recoiler::output() const
+std::string Recoiler::Handoutput() const
 {
     return "Recoiler -" + std::to_string(recoilAmount);
 }

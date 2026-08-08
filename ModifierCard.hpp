@@ -10,7 +10,7 @@ public:
     ModifierCard(const std::string& cardName);
     virtual int getModifiedAmount(int);
     virtual ModifierCard* clone() const;
-    virtual std::string output() const;
+    virtual std::string Handoutput() const;
 };
 
 #endif

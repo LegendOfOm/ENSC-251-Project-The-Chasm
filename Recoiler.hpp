@@ -13,7 +13,7 @@ public:
     int getRecoilAmount() const;
     virtual Recoiler* clone() const;
     virtual int getModifiedAmount(int originalMovment);
-    std::string output() const override;
+    std::string Handoutput() const override;
 };
 
 #endif

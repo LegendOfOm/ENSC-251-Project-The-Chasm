@@ -17,7 +17,7 @@ int Booster::getModifiedAmount(int originalMovment) {
     return originalMovment + boostAmount;
 }
 
-std::string Booster::output() const
+std::string Booster::Handoutput() const
 {
     return "Booster +" + std::to_string(boostAmount);
 }

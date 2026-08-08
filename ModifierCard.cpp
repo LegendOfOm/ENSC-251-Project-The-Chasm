@@ -11,7 +11,7 @@ int ModifierCard::getModifiedAmount(int originalMovment) {
     return originalMovment;
 }
 
-std::string ModifierCard::output() const
+std::string ModifierCard::Handoutput() const
 {
     return "Modifier Card";
 }

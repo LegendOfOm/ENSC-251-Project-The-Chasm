@@ -29,5 +29,5 @@ std::string RecoilNode::Handoutput() const
     {
         amount = " " + amount;
     }
-    return colorCode + "RNod-" + amount +resetCode;
+    return colorCode + "RNod-" + amount + resetCode;
 }

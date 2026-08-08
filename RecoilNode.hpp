@@ -14,7 +14,7 @@ public:
     int getMovementAmount() const override;
     std::string output() const override;
     RecoilNode* clone() const override;
-    std::string RecoilNode::Handoutput() const override;
+    std::string Handoutput() const override;
 };
 
 #endif
