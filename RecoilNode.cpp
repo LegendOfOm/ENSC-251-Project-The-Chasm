@@ -17,7 +17,7 @@ std::string RecoilNode::output() const
     {
         amount = " " + amount;
     }
-    return colorCode + "RNod-" + amount + resetCode;
+    return colorCode + "RNod-" + resetCode;
 }
 
 RecoilNode* RecoilNode::clone() const
