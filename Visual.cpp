@@ -13,7 +13,7 @@ void Visual::printBridge(const Bridge& bridge, const Player& player1, const Play
 
     while (currentNode != nullptr)
     {
-        printNode(currentNode, index, player1, player2);
+        printNode(currentNode, index, player1, player2, bridge);
         if(currentNode->right != nullptr)
         {
             std::cout << " --- ";
@@ -23,7 +23,7 @@ void Visual::printBridge(const Bridge& bridge, const Player& player1, const Play
     }
 }
 
-void  Visual::printNode(const Node* node, int index, const Player& player1, const Player& player2) const
+void  Visual::printNode(const Node* node, int index, const Player& player1, const Player& player2, const Bridge& bridge) const
 {
     if (node->isPlayer1Castle)
     {
@@ -60,6 +60,7 @@ void  Visual::printNode(const Node* node, int index, const Player& player1, cons
         if (node->nodeCard != nullptr)
         {
             std::cout << node->nodeCard->output();
+            std::cout << bridge.getMovementOnBridge(node);
         }
         else
         {

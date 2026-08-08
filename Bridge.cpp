@@ -217,6 +217,6 @@ Node* Bridge::travelToNode(int theNode) {
     return tempptr;
 }
 
-int Bridge::getMovementAmount(Node* targetNode) {
+int Bridge::getMovementOnBridge(const Node* targetNode) const {
     return targetNode->movementAmount;   
 }

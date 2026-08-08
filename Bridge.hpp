@@ -87,7 +87,7 @@ public:
     // ---- Text UI support ----
 
     // postcondition: returns movement amount
-    int getMovementAmount(Node* targetNode);
+    int getMovementOnBridge(const Node* targetNode) const;
 
 private:
     Node* player1Castle;
