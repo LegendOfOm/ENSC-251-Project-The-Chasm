@@ -147,7 +147,14 @@ GameLogic::placementChoice GameLogic::placingPhase(Player& player)
         std::cout << "Enter the index of the card you would like to place from 0 to " << player.getHandSize() - 1
         << ", or -1 to skip placing: ";
 
+        if (!(std::cin >> choice.cardIndex)) {
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
+            std::cout << "Please input a number." << std::endl;
+        }
+        
         std::cin >> choice.cardIndex;
+
         if (choice.cardIndex == -1) {
             std::cout << "Player " << player.getPlayerId() << " is skipping placing" << std::endl;
             return choice;
