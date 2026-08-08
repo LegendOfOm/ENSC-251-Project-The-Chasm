@@ -23,11 +23,14 @@ GameLogic::~GameLogic() {
 }
 
 void GameLogic::startGame() {
+    Visual visual;
     char choice;
     gameOver = false;
     turnNumber = 1;
     std::cout << "Game started successfully" << std::endl;
     deck.generateDeckForState(12, 1, 12);
+    visual.printBridge(bridge, player1, player2);
+    std::cout << std::endl;
     while(!gameOver) {
         runTurn();
         checkWinCondition();
@@ -309,6 +312,25 @@ bool GameLogic::applyPlacement(placementChoice& choice) {
 }
 
 void GameLogic::resolvePlacements(placementChoice& p1choice, placementChoice& p2choice) {
+    ModifierCard* p1Modifier = dynamic_cast<ModifierCard*>(p1choice.card);
+    ModifierCard* p2Modifier = dynamic_cast<ModifierCard*>(p2choice.card);
+
+    if (p1Modifier != nullptr && p2Modifier != nullptr && p1choice.targetNode == p2choice.targetNode) {
+        Dynamite* p1Dynamite = dynamic_cast<Dynamite*>(p1choice.card);
+        Dynamite* p2Dynamite = dynamic_cast<Dynamite*>(p2choice.card);
+        if (p1Dynamite != nullptr && p2Dynamite != nullptr) {
+            bool succeeded = applyPlacement(p1choice);
+
+            if (succeeded) {
+                p2choice.player->removeCardFromHand(p2choice.card);
+                delete p2Dynamite;
+                p2choice.card = nullptr;
+            }
+
+            return;
+        }
+    }
+    
     NodeCard* p1NodeCard = dynamic_cast<NodeCard*>(p1choice.card);
     NodeCard* p2NodeCard = dynamic_cast<NodeCard*>(p2choice.card);
 
@@ -424,18 +446,6 @@ int GameLogic::calculateMovement(Node* node) {
     ModifierStrand* currentModifier = node->beginningOfStrand;
 
     while (currentModifier != nullptr) {
-        
-        Multiplier* multiplier = dynamic_cast<Multiplier*>(currentModifier->modifierCard);
-        if (multiplier != nullptr) {
-            movement *= multiplier->getMultiplierAmount();
-        }
-
-        currentModifier = currentModifier->next;
-    }
-
-    currentModifier = node->beginningOfStrand;
-
-    while (currentModifier != nullptr) {
 
         Booster* booster = dynamic_cast<Booster*>(currentModifier->modifierCard);
         Recoiler* recoiler = dynamic_cast<Recoiler*>(currentModifier->modifierCard);
@@ -444,6 +454,18 @@ int GameLogic::calculateMovement(Node* node) {
             movement += booster->getBoostAmount();
         } else if (recoiler != nullptr) {
             movement += recoiler->getRecoilAmount();
+        }
+
+        currentModifier = currentModifier->next;
+    }
+
+    currentModifier = node->beginningOfStrand;
+
+        while (currentModifier != nullptr) {
+        
+        Multiplier* multiplier = dynamic_cast<Multiplier*>(currentModifier->modifierCard);
+        if (multiplier != nullptr) {
+            movement *= multiplier->getMultiplierAmount();
         }
 
         currentModifier = currentModifier->next;
