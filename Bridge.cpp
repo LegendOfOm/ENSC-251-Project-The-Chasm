@@ -139,9 +139,7 @@ bool Bridge::insertCard(const int& leftNode, const int& rightNode, NodeCard* new
     numberOfNodes++;
     
     // add the movement amount 
-    if (typeid(*newNodeCard) == typeid(DiceNode) || typeid(*newNodeCard) == typeid(PortalNode)) {
-        newNode->movementAmount = 0;
-    } else {
+    if (!(typeid(*newNodeCard) == typeid(DiceNode) || typeid(*newNodeCard) == typeid(PortalNode))) {
         newNode->movementAmount = newNodeCard->getMovementAmount();
     }
     return true;

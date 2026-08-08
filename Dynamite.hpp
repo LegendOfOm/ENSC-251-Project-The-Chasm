@@ -7,7 +7,7 @@ class Dynamite : public ModifierCard
 {
 public:
     Dynamite();
-
+    std::string Handoutput() const override;
     virtual int getModifiedAmount(int originalMovment);
 
 };

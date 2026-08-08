@@ -17,7 +17,7 @@ int DiceNode::rollDice() const
 
 std::string DiceNode::output() const
 {
-    return "Dice   ";
+    return "Dice  ";
 }
 
 DiceNode* DiceNode::clone() const
