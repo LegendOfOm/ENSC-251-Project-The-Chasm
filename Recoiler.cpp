@@ -16,3 +16,8 @@ Recoiler* Recoiler::clone() const
 int Recoiler::getModifiedAmount(int originalMovment) {
     return originalMovment - recoilAmount;
 }
+
+std::string Recoiler::output() const
+{
+    return "Recoiler -" + std::to_string(recoilAmount);
+}

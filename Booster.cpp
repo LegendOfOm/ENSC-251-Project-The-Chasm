@@ -16,3 +16,8 @@ Booster* Booster::clone() const
 int Booster::getModifiedAmount(int originalMovment) {
     return originalMovment + boostAmount;
 }
+
+std::string Booster::output() const
+{
+    return "Booster +" + std::to_string(boostAmount);
+}

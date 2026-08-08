@@ -10,3 +10,8 @@ ModifierCard* ModifierCard::clone() const
 int ModifierCard::getModifiedAmount(int originalMovment) {
     return originalMovment;
 }
+
+std::string ModifierCard::output() const
+{
+    return "Modifier Card";
+}
