@@ -10,24 +10,24 @@ private:
     int boostAmount;
 
 public:
-    Booster(int amount);
     // precondition: amount should be the amount of movement the Booster will add
     // postcondition: creates a Booster card and initializes boostAmount to amount
+    Booster(int amount);
 
-    int getBoostAmount() const;
     // postcondition: returns the boost amount of this Booster card
+    int getBoostAmount() const;
 
-    virtual int getModifiedAmount(int originalMovment);
     // precondition: originalMovement is the movement amount before the Booster is applied
     // postcondition: returns the movement amount after adding boostAmount
+    virtual int getModifiedAmount(int originalMovment);
 
-    std::string Handoutput() const override;
     // postcondition: returns a string representation of the Booster card
     // used when displaying the card in the player's hand
+    std::string Handoutput() const override;
 
-    virtual Booster* clone() const;
     // postcondition: creates and returns a dynamically allocated copy
     // of the current Booster card
+    virtual Booster* clone() const;
 };
 
 #endif
