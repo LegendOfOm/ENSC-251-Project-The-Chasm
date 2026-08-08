@@ -1,6 +1,5 @@
 #include "DiceNode.hpp"
-#include <random>
-#include <chrono>
+#include "rng.hpp"
 
 DiceNode::DiceNode()
     : NodeCard("Dice Node")
@@ -10,10 +9,8 @@ DiceNode::DiceNode()
 int DiceNode::rollDice() const
 {
     const int results[6] = {4, 2, 1, -1, -2, -4};
-
-    std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
     std::uniform_int_distribution<int> distrib(0, 5);
-    int index = distrib(rng);
+    int index = distrib(rng::randomNumber);
 
     return results[index];
 }
