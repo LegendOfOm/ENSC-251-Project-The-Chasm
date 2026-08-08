@@ -63,8 +63,10 @@ void  Visual::printNode(const Node* node, int index, const Player& player1, cons
             if (bridge.getMovementOnBridge(node) < 10)
             {
                 std::cout << " " <<bridge.getMovementOnBridge(node);
+            } else {
+                std::cout << bridge.getMovementOnBridge(node);
             }
-            std::cout << bridge.getMovementOnBridge(node);
+
         }
         else
         {
