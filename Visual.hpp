@@ -19,7 +19,7 @@ private:
     // node points to a valid bridge node.
     // postcondition:
     // Prints the NodeCard stored inside the node.
-    void printNode(const Node* node, int index, const Player& player1, const Player& player2) const;
+    void printNode(const Node* node, int index, const Player& player1, const Player& player2, const Bridge& bridge) const;
 
     // precondition:
     // strand points to the beginning of a modifier strand or is nullptr.
