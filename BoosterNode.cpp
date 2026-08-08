@@ -25,11 +25,6 @@ std::string BoostNode::Handoutput() const
     const std::string colorCode = "\033[32m"; // Green color code
     const std::string resetCode = "\033[0m"; // Reset color code
     std::string amount = std::to_string(boostAmount);
-    // if (boostAmount < 10)
-    // {
-    //     amount = " " + amount;
-    // }
-    // dont need this code for hand output?
     return colorCode + "BNod+ " + amount + resetCode;
 
 }
