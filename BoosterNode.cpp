@@ -12,7 +12,7 @@ std::string BoostNode::output() const
 {
     const std::string colorCode = "\033[32m"; // Green color code
     const std::string resetCode = "\033[0m"; // Reset color code
-    return colorCode + "BNod+" + resetCode;
+    return colorCode + "BNod+ " + resetCode;
 }
 
 BoostNode* BoostNode::clone() const
@@ -30,6 +30,6 @@ std::string BoostNode::Handoutput() const
     //     amount = " " + amount;
     // }
     // dont need this code for hand output?
-    return colorCode + "BNod+ " + amount + resetCode;
+    return colorCode + "BNod+" + amount + resetCode;
 
 }

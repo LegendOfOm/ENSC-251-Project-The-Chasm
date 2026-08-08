@@ -12,7 +12,7 @@ std::string RecoilNode::output() const
 {
     const std::string colorCode = "\033[31m"; // Red color code
     const std::string resetCode = "\033[0m"; // Reset color code
-    return colorCode + "RNod-" + resetCode;
+    return colorCode + "RNod- " + resetCode;
 }
 
 RecoilNode* RecoilNode::clone() const
@@ -30,5 +30,5 @@ std::string RecoilNode::Handoutput() const
     //     amount = " " + amount;
     // }
     // we dont need this code for hand output?
-    return colorCode + "RNod- " + amount + resetCode;
+    return colorCode + "RNod-" + amount + resetCode;
 }

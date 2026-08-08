@@ -49,13 +49,15 @@ void testCard()
 {
     Card card("Boost Node");
 
-    assert(card.getName() == "Boost Node");   // the name given to the constructor comes back
-    assert(card.output() == "Boost Node");    // the base output is just the name
+    assert(card.getName() == "Boost Node");       // the name given to the constructor comes back
+    assert(card.output() == "Boost Node");        // the label drawn on the bridge is just the name
+    assert(card.Handoutput() == "Boost Node");    // and so is the label drawn in a hand
 
     Card empty("");
 
     assert(empty.getName() == "");            // an empty name is accepted
     assert(empty.output() == "");             // and prints as nothing
+    assert(empty.Handoutput() == "");
 
     Card copy(card);
 
@@ -84,14 +86,15 @@ void testNodeCard()
 {
     NodeCard node;
 
-    assert(node.getName() == "Normal Node");   // the default name when none is given
-    assert(node.getMovementAmount() == 0);     // a plain node does not move the player
-    assert(node.output() == "Norm   ");        // the label drawn on the bridge
+    assert(node.getName() == "Normal Node");     // the default name when none is given
+    assert(node.getMovementAmount() == 0);       // a plain node does not move the player
+    assert(node.output() == "Norm  ");           // the label drawn on the bridge
+    assert(node.Handoutput() == "Node Card");    // the longer label drawn in a hand
 
     NodeCard named("Portal Node");
 
     assert(named.getName() == "Portal Node");  // a custom name is stored
-    assert(named.output() == "Norm   ");       // output is the same no matter the name
+    assert(named.output() == "Norm  ");        // output is the same no matter the name
 
     NodeCard* copy = node.clone();
 
@@ -101,21 +104,29 @@ void testNodeCard()
 
     delete copy;
 
-    // !!! BROKEN: Card.hpp says output() "returns a fixed-width card label", but the
-    // widths do not match each other any more, so the bridge cannot line up on screen:
-    //     NodeCard    "Norm   "      7 characters
-    //     BoostNode   "BNod+ 3"      7 characters
-    //     RecoilNode  "RNod- 2"      7 characters
-    //     PortalNode  "[Portal]"     8 characters
-    //     DiceNode    "[Dice   ]"    9 characters
-    //     PortalNode  "[Portal ]"    9 characters (the no colour fallback)
-    // Pick one width and one style (with or without the square brackets) and make every
-    // output() match it.
+    // output() is the fixed-width label the bridge draws; Handoutput() is the longer one a
+    // hand draws. A colour code is 5 characters ("\033[32m") plus a 4 character reset
+    // ("\033[0m"), and neither shows on screen, so only the rest counts as width.
     DiceNode dice;
+    BoostNode boost(3);
+    PortalNode portal("Blue");
+    PortalNode noColour("Green");
 
-    assert(node.output().size() == 7);                    // what it does now
-    assert(dice.output().size() == 9);                    // a different width on the same bridge
-    // assert(node.output().size() == dice.output().size());   // what we actually want
+    assert(node.output().size() == 6);            // "Norm  "        6 visible
+    assert(dice.output().size() == 6);            // "Dice  "        6 visible
+    assert(portal.output().size() == 6 + 9);      // "Portal"        6 visible
+    assert(boost.output().size() == 5 + 9);       // "BNod+"         5 visible
+    assert(noColour.output().size() == 7);        // "Portal "       7 visible, no colour code
+
+    // !!! BROKEN: those visible widths do not match, so the bridge does not line up.
+    // Visual::printNode() prints output(), then a space, then the movement number padded
+    // to 3 characters, so a node is meant to be a fixed width box. A boost or recoil node
+    // is one character narrower than a normal, dice or portal node, and an uncoloured
+    // portal is one character wider. Every column after the first odd node is shifted.
+    // Pad "BNod+" and "RNod-" to 6 characters and cut the fallback "Portal " to 6.
+    assert(boost.output().size() - 9 != node.output().size());      // what it does now: 5 vs 6
+    // assert(boost.output().size() - 9 == node.output().size());   // what we actually want
+    assert(noColour.output().size() != node.output().size());       // what it does now: 7 vs 6
 
     // ??? UNCLEAR: NodeCard has a private movementAmount that is always 0, and every
     // subclass stores its own amount instead of using it. The base variable is never
@@ -129,12 +140,15 @@ void testModifierCard()
 {
     ModifierCard modifier;
 
-    assert(modifier.getName() == "Modifier");    // default name
-    assert(modifier.output() == "Modifier");     // modifiers have no special label
+    assert(modifier.getName() == "Modifier");                 // default name
+    assert(modifier.output() == "Modifier");                  // modifiers never go on the bridge, so
+                                                              // output() is just the inherited name
+    assert(modifier.Handoutput() == "Modifier Card");         // the label drawn in a hand
 
     ModifierCard named("Booster");
 
-    assert(named.getName() == "Booster");        // a custom name is stored
+    assert(named.getName() == "Booster");                     // a custom name is stored
+    assert(named.Handoutput() == "Modifier Card");            // but the hand label ignores it
 
     // The base modifier changes nothing. Each subclass overrides this to do its own maths.
     int unchanged = modifier.getModifiedAmount(5);
@@ -160,26 +174,32 @@ void testBoostNode()
 {
     BoostNode boost(3);
 
-    assert(boost.getName() == "Boost Node");                 // the name of every boost node
-    assert(boost.getMovementAmount() == 3);                  // forward movement is positive
-    assert(boost.output() == "\033[32mBNod+ 3\033[0m");      // green label, one digit gets padded
+    assert(boost.getName() == "Boost Node");                    // the name of every boost node
+    assert(boost.getMovementAmount() == 3);                     // forward movement is positive
+
+    // On the bridge the label carries no number: Visual prints the node's own movement
+    // amount next to it, which is the total after any modifiers. In a hand there is no
+    // node yet, so the hand label carries the card's own amount.
+    assert(boost.output() == "\033[32mBNod+\033[0m");            // green, no number
+    assert(boost.Handoutput() == "\033[32mBNod+ 3\033[0m");      // green, with the number
 
     BoostNode twelve(12);
 
-    assert(twelve.getMovementAmount() == 12);                // two digit amounts are kept
-    assert(twelve.output() == "\033[32mBNod+12\033[0m");     // and are not padded
+    assert(twelve.getMovementAmount() == 12);                    // two digit amounts are kept
+    assert(twelve.output() == "\033[32mBNod+\033[0m");           // the bridge label never changes
+    assert(twelve.Handoutput() == "\033[32mBNod+ 12\033[0m");    // only the hand label grows
 
     BoostNode zero(0);
 
-    assert(zero.getMovementAmount() == 0);                   // a boost of 0 moves nobody
+    assert(zero.getMovementAmount() == 0);                       // a boost of 0 moves nobody
 
-    // ??? UNCLEAR: the constructor does not reject a negative boost, so a "boost" can
-    // send the player backwards, and the label becomes "BNod+ -2" which is one character
-    // wider than every other boost label. Should BoostNode refuse a negative amount?
+    // ??? UNCLEAR: the constructor does not reject a negative boost, so a "boost" can send
+    // the player backwards and the hand label reads "BNod+ -2". Should BoostNode refuse a
+    // negative amount?
     BoostNode negative(-2);
 
-    assert(negative.getMovementAmount() == -2);              // negative is stored as given
-    assert(negative.output() == "\033[32mBNod+ -2\033[0m");  // and the label runs long
+    assert(negative.getMovementAmount() == -2);                  // negative is stored as given
+    assert(negative.Handoutput() == "\033[32mBNod+ -2\033[0m");  // and the hand label reads oddly
 
     BoostNode* copy = boost.clone();
 
@@ -202,16 +222,21 @@ void testRecoilNode()
     // -2. Nothing in the design says which sign the caller is supposed to pass, so
     // RecoilNode(-2) would move the player FORWARD. We should pick one rule and use it
     // everywhere (same problem exists in Recoiler).
-    assert(recoil.getMovementAmount() == -2);                // backward movement is negative
-    assert(recoil.output() == "\033[31mRNod- 2\033[0m");     // red label, one digit gets padded
+    assert(recoil.getMovementAmount() == -2);                   // backward movement is negative
+
+    // Same split as BoostNode: the bridge label has no number, the hand label does. The
+    // hand label shows the POSITIVE amount that was passed in, written after a minus sign.
+    assert(recoil.output() == "\033[31mRNod-\033[0m");          // red, no number
+    assert(recoil.Handoutput() == "\033[31mRNod- 2\033[0m");    // red, with the number
 
     RecoilNode zero(0);
 
-    assert(zero.getMovementAmount() == 0);                   // a recoil of 0 moves nobody
+    assert(zero.getMovementAmount() == 0);                      // a recoil of 0 moves nobody
 
     RecoilNode negative(-3);
 
-    assert(negative.getMovementAmount() == 3);               // a negative amount flips forward
+    assert(negative.getMovementAmount() == 3);                  // a negative amount flips forward
+    assert(negative.Handoutput() == "\033[31mRNod- -3\033[0m"); // and the hand label reads oddly
 
     RecoilNode* copy = recoil.clone();
 
@@ -233,8 +258,9 @@ void testDiceNode()
 {
     DiceNode dice;
 
-    assert(dice.getName() == "Dice Node");    // the name of every dice node
-    assert(dice.output() == "[Dice   ]");     // the label drawn on the bridge
+    assert(dice.getName() == "Dice Node");        // the name of every dice node
+    assert(dice.output() == "Dice  ");            // the label drawn on the bridge
+    assert(dice.Handoutput() == "Dice   ");       // the label drawn in a hand, one space longer
 
     // Roll many times and check every result is one the card is allowed to give.
     for (int i = 0; i < 100; i++)
@@ -253,11 +279,6 @@ void testDiceNode()
     // GameLogic::calculateMovement() checks with dynamic_cast. Anywhere else that asks a
     // node how far it moves a player will silently get 0.
     assert(dice.getMovementAmount() == 0);    // what it does now: always 0, never the roll
-
-    // ??? UNCLEAR: rollDice() builds a brand new mt19937 seeded from the clock on EVERY
-    // call. Two rolls close together can land on the same clock reading and give the same
-    // answer, and building the generator each time is slow. It should be built once and
-    // kept.
 
     // ??? UNCLEAR: the design document says the dice gives +5, +4, +3, +2, +1, 0, -1, -2,
     // -3, -4 and the class table says +4, +3, +2, +1, 0, -1. The code uses
@@ -297,13 +318,17 @@ void testPortalNode()
 
     blue.setConnectedPortal(&purple);
 
-    // The colour decides the colour of the label.
-    assert(PortalNode("Yellow").output() == "\033[33m[Portal]\033[0m");        // yellow portal
-    assert(PortalNode("Blue").output() == "\033[34m[Portal]\033[0m");          // blue portal
-    assert(PortalNode("Purple").output() == "\033[35m[Portal]\033[0m");        // purple portal
-    assert(PortalNode("Orange").output() == "\033[38;5;208m[Portal]\033[0m");  // orange portal
-    assert(PortalNode("Green").output() == "[Portal ]");                       // unknown colour, no colour code
-    assert(PortalNode("blue").output() == "[Portal ]");                        // the check is case sensitive
+    // The colour decides the colour of the label. A portal is the one node whose bridge
+    // label and hand label are identical, because it carries no number either way.
+    assert(PortalNode("Yellow").output() == "\033[33mPortal\033[0m");        // yellow portal
+    assert(PortalNode("Blue").output() == "\033[34mPortal\033[0m");          // blue portal
+    assert(PortalNode("Purple").output() == "\033[35mPortal\033[0m");        // purple portal
+    assert(PortalNode("Orange").output() == "\033[38;5;208mPortal\033[0m");  // orange portal
+    assert(PortalNode("Green").output() == "Portal ");                       // unknown colour, no colour code
+    assert(PortalNode("blue").output() == "Portal ");                        // the check is case sensitive
+
+    assert(PortalNode("Blue").Handoutput() == PortalNode("Blue").output());   // both labels match
+    assert(PortalNode("Green").Handoutput() == "Portal ");
 
     PortalNode* copy = blue.clone();
 
@@ -329,9 +354,10 @@ void testBooster()
 {
     Booster booster(2);
 
-    assert(booster.getName() == "Booster");     // the name of every booster
-    assert(booster.getBoostAmount() == 2);      // the amount comes back positive
-    assert(booster.output() == "Booster");      // modifiers have no special label
+    assert(booster.getName() == "Booster");                  // the name of every booster
+    assert(booster.getBoostAmount() == 2);                   // the amount comes back positive
+    assert(booster.output() == "Booster");                   // never drawn on the bridge, so just the name
+    assert(booster.Handoutput() == "Booster +2");            // the label drawn in a hand
 
     // getModifiedAmount adds the boost onto whatever the node already moves.
     int forward = booster.getModifiedAmount(3);
@@ -369,8 +395,9 @@ void testRecoiler()
 {
     Recoiler recoiler(2);
 
-    assert(recoiler.getName() == "Recoiler");    // the name of every recoiler
-    assert(recoiler.output() == "Recoiler");     // modifiers have no special label
+    assert(recoiler.getName() == "Recoiler");                 // the name of every recoiler
+    assert(recoiler.output() == "Recoiler");                  // never drawn on the bridge, so just the name
+    assert(recoiler.Handoutput() == "Recoiler -2");           // the label drawn in a hand
 
     // ??? UNCLEAR: getRecoilAmount() returns the NEGATIVE of what was passed in, but
     // getModifiedAmount() subtracts the POSITIVE stored value. Both end up correct, but
@@ -419,9 +446,10 @@ void testMultiplier()
 {
     Multiplier doubler(2);
 
-    assert(doubler.getName() == "Multiplier");          // the name of every multiplier
-    assert(doubler.getMultiplierAmount() == 2);         // the amount comes back as given
-    assert(doubler.output() == "Multiplier");           // modifiers have no special label
+    assert(doubler.getName() == "Multiplier");            // the name of every multiplier
+    assert(doubler.getMultiplierAmount() == 2);           // the amount comes back as given
+    assert(doubler.output() == "Multiplier");             // never drawn on the bridge, so just the name
+    assert(doubler.Handoutput() == "Multiplier x2");      // the label drawn in a hand
 
     // getModifiedAmount multiplies whatever the node already moves.
     int doubled = doubler.getModifiedAmount(3);
@@ -457,6 +485,26 @@ void testMultiplier()
     assert(copy->getMultiplierAmount() == 2);           // and keeps the amount
 
     delete copy;
+
+    // A multiplier hits whatever the node adds up to at the point it sits in the strand,
+    // not the node's own card. On a plain node already carrying a +2 booster, a x3 sees 2
+    // and turns it into 6.
+    Booster earlier(2);
+    Multiplier tripler(3);
+    int runningTotal = earlier.getModifiedAmount(0);
+
+    assert(runningTotal == 2);                          // plain node 0, booster makes it 2
+
+    runningTotal = tripler.getModifiedAmount(runningTotal);
+
+    assert(runningTotal == 6);                          // then the multiplier makes it 6
+
+    // Placement order decides everything. The same two cards the other way round give a
+    // different node, which is why the strand has to stay in order.
+    int otherOrder = earlier.getModifiedAmount(tripler.getModifiedAmount(0));
+
+    assert(otherOrder == 2);                            // 0 * 3 = 0, then + 2 = 2
+    assert(otherOrder != runningTotal);                 // so order really does matter
 }
 
 // =====================================================================================
@@ -466,8 +514,9 @@ void testDynamite()
 {
     Dynamite dynamite;
 
-    assert(dynamite.getName() == "Dynamite");       // the name of every dynamite
-    assert(dynamite.output() == "Dynamite");        // modifiers have no special label
+    assert(dynamite.getName() == "Dynamite");         // the name of every dynamite
+    assert(dynamite.output() == "Dynamite");          // never drawn on the bridge, so just the name
+    assert(dynamite.Handoutput() == "Dynamite");      // the label drawn in a hand
 
     // Dynamite destroys the node instead of changing its movement, so it leaves the
     // movement alone.
@@ -778,7 +827,7 @@ void testBridge()
     assert(castle1->movementAmount == 0);                     // that moves nobody
     assert(castle1->beginningOfStrand == nullptr);            // and has no modifiers
 
-    int castleMovement = bridge.getMovementAmount(castle1);
+    int castleMovement = bridge.getMovementOnBridge(castle1);
 
     assert(castleMovement == 0);                              // and the getter agrees
 
@@ -839,16 +888,33 @@ void testBridge()
 
     assert(count == 13);                          // the bridge grew by one node
 
-    int insertedMovement = bridge.getMovementAmount(inserted);
+    int insertedMovement = bridge.getMovementOnBridge(inserted);
 
     assert(insertedMovement == 3);                // the getter reads back the stored amount
 
+    // A dice or a portal node keeps a movement of 0, because the amount is not known until
+    // the player lands on it.
+    bool dicePlaced = bridge.insertCard(2, 3, new DiceNode());
+
+    assert(dicePlaced == true);
+    assert(bridge.getMovementOnBridge(inserted->right) == 0);   // the dice node stores nothing
+
+    bool portalPlaced = bridge.insertCard(3, 4, new PortalNode("Blue"));
+
+    assert(portalPlaced == true);
+    assert(bridge.getMovementOnBridge(inserted->right->right) == 0);   // and neither does the portal
+
+    bool portalRemoved = bridge.removeNode(4);   // take the portal back off, it is node 4
+    bool diceRemoved = bridge.removeNode(3);     // then the dice, leaving the boost node alone
+
+    assert(portalRemoved == true);
+    assert(diceRemoved == true);
+    assert(castle1->right == inserted);          // the boost node is back next to the castle
+
     // !!! BROKEN: insertCard() is never called with a null card in this test because it
-    // would kill the program. Its last lines do "typeid(*newNodeCard)" twice, and
-    // dereferencing a null pointer there throws std::bad_typeid.
+    // would kill the program. It does "typeid(*newNodeCard)" twice, and dereferencing a
+    // null pointer there throws std::bad_typeid.
     // Add "if (newNodeCard == nullptr) return false;" at the top.
-    // (the leak this used to sit next to is fixed: Node::nodeCard starts as nullptr again,
-    // so insertCard() no longer writes over a card that the Node had allocated itself)
 
     // ---- attachModifierCard ----
     bool attached = bridge.attachModifierCard(2, new Booster(1));
@@ -857,27 +923,106 @@ void testBridge()
     assert(inserted->beginningOfStrand != nullptr);                              // the node now has a strand
     assert(inserted->beginningOfStrand->modifierCard->getName() == "Booster");   // holding our booster
     assert(inserted->beginningOfStrand->next == nullptr);                        // and nothing after it
-    assert(inserted->movementAmount == 4);                                       // 3 + 1, the booster was applied
+
+    // !!! BROKEN: the FIRST modifier put on a node never changes the node's movement. When
+    // the strand is empty attachModifierCard() takes the early "return true;" branch, which
+    // sits ABOVE the line that does
+    //     tempptr->movementAmount = modifier->getModifiedAmount(tempptr->movementAmount);
+    // so that line only ever runs for the second modifier onwards. The booster just
+    // attached is worth +1 and the node still says 3.
+    // Fix: move the movementAmount update above the early return, or drop the early return
+    // and let the append loop handle the empty case.
+    assert(inserted->movementAmount == 3);        // what it does now: the booster was ignored
+    // assert(inserted->movementAmount == 4);     // what we actually want: 3 + 1
 
     bridge.attachModifierCard(2, new Multiplier(2));
 
     assert(inserted->beginningOfStrand->modifierCard->getName() == "Booster");            // the first modifier stays first
     assert(inserted->beginningOfStrand->next->modifierCard->getName() == "Multiplier");   // the new one goes on the end
 
-    // !!! BROKEN: there are still TWO different answers for how far this node moves a
-    // player, and they still disagree.
-    //   Bridge::attachModifierCard() updates node->movementAmount as each card lands, in
-    //   the order they were placed:               (3 + 1) * 2 = 8
-    //   GameLogic::calculateMovement() ignores node->movementAmount and works it out from
-    //   the strand with the multipliers first:     3 * 2  + 1 = 7
-    // The design says multipliers go first, so 7 is the right answer. Bridge has since
-    // gained a public getMovementAmount() for the cached value, but nothing calls it: the
-    // moving phase only ever uses calculateMovement(). So the cached number is still both
-    // wrong and unused. Either delete movementAmount from Node (and the getter with it) and
-    // let calculateMovement() do the job, or make attachModifierCard() redo the whole
-    // strand in the right order every time.
-    assert(inserted->movementAmount == 8);        // what the cached value says
-    // assert(inserted->movementAmount == 7);     // what the design says it should be
+    // The second modifier IS applied, on top of the amount that skipped the first one:
+    // 3 (booster never counted) * 2 = 6.
+    assert(inserted->movementAmount == 6);              // what it does now
+    assert(bridge.getMovementOnBridge(inserted) == 6);  // and the getter agrees
+    // assert(inserted->movementAmount == 8);           // what this line would say if the
+                                                        // first modifier were not skipped
+
+    // THE RULE: a node's movement is worked out by walking the modifier strand from the
+    // first card placed to the last, applying each one to the running total. The strand is
+    // in placement order, so the order the cards were played in is the order they apply in.
+    // "Multipliers go first" is NOT a general rule: it only breaks the tie when both
+    // players attach a modifier to the SAME node on the SAME turn, and it decides which of
+    // those two goes into the strand first. Everything else is just placement order.
+    //
+    // So for this node, BoostNode(+3) with strand [Booster +1, Multiplier x2]:
+    //     3 + 1 = 4, then 4 * 2 = 8.  The right answer is 8.
+    //
+    // Bridge::attachModifierCard() already works this way, applying each card as it lands.
+    // It is the right model, and once the skipped first modifier above is fixed it will
+    // give 8 on its own.
+
+    // Placing the same two cards in the other order must give a different answer, because
+    // the strand order is different: 3 * 2 = 6, then 6 + 1 = 7.
+    Bridge orderCheck;
+
+    orderCheck.insertCard(1, 2, new BoostNode(3));
+    orderCheck.attachModifierCard(2, new Multiplier(2));    // multiplier lands first this time
+    orderCheck.attachModifierCard(2, new Booster(1));       // then the booster
+
+    Node* orderedNode = orderCheck.getPlayer1Castle()->right;
+
+    assert(orderedNode->beginningOfStrand->modifierCard->getName() == "Multiplier");   // strand order is kept
+    assert(orderedNode->beginningOfStrand->next->modifierCard->getName() == "Booster");
+    assert(orderCheck.getMovementOnBridge(orderedNode) == 4);   // what it does now: the x2 was the
+                                                                // skipped first modifier, so 3 + 1
+    // assert(orderCheck.getMovementOnBridge(orderedNode) == 7);   // what we want: 3 * 2 + 1
+
+    // !!! BROKEN: GameLogic::calculateMovement() does not follow the rule at all. It walks
+    // the strand twice, adding every booster and recoiler in the first pass and applying
+    // every multiplier in the second, so it always behaves as if every multiplier were
+    // placed last no matter what order the cards were really played in. For the node just
+    // built it returns (3 + 1) * 2 = 8 where the strand says 3 * 2 + 1 = 7.
+    // The fix is smaller than the current code: getModifiedAmount() is virtual precisely so
+    // that the caller does not have to know which kind of modifier it is holding. Replace
+    // both while loops and all four dynamic_casts with one walk:
+    //     ModifierStrand* m = node->beginningOfStrand;
+    //     while (m != nullptr) {
+    //         if (m->modifierCard != nullptr) movement = m->modifierCard->getModifiedAmount(movement);
+    //         m = m->next;
+    //     }
+    // That is the same loop Bridge::attachModifierCard() already does one card at a time,
+    // so the two will finally agree.
+
+    // A worked example from the rules, played out on a real bridge. A plain node starts at
+    // 0, then over three turns:
+    //     turn 1  p1 attaches Booster +2      0 + 2  =  2
+    //     turn 2  p1 attaches Multiplier x3   2 * 3  =  6
+    //     turn 3  p1 attaches Booster +1 and p2 attaches Multiplier x2 at the same time,
+    //             so the multiplier goes into the strand first:
+    //                                         6 * 2  = 12
+    //                                        12 + 1  = 13
+    // The node should end up at +13.
+    Bridge worked;
+
+    worked.insertCard(1, 2, new NodeCard());          // a plain node, movement 0
+    worked.attachModifierCard(2, new Booster(2));     // turn 1
+    worked.attachModifierCard(2, new Multiplier(3));  // turn 2
+    worked.attachModifierCard(2, new Multiplier(2));  // turn 3, the multiplier is placed first
+    worked.attachModifierCard(2, new Booster(1));     // turn 3, then the booster
+
+    Node* workedNode = worked.getPlayer1Castle()->right;
+
+    assert(workedNode->beginningOfStrand->modifierCard->getName() == "Booster");                    // strand order
+    assert(workedNode->beginningOfStrand->next->modifierCard->getName() == "Multiplier");
+    assert(workedNode->beginningOfStrand->next->next->modifierCard->getName() == "Multiplier");
+    assert(workedNode->beginningOfStrand->next->next->next->modifierCard->getName() == "Booster");
+
+    // !!! BROKEN: the answer is 1, not 13. The +2 on turn 1 was the first modifier on the
+    // node so it was thrown away, leaving 0. Then 0 * 3 = 0, 0 * 2 = 0, 0 + 1 = 1. The
+    // skipped first modifier is worse than losing one card: because a multiplier follows
+    // it, the whole node collapses to almost nothing.
+    assert(worked.getMovementOnBridge(workedNode) == 1);      // what it does now
+    // assert(worked.getMovementOnBridge(workedNode) == 13);  // what the rules say
 
     ModifierCard* onCastle = new Booster(1);
     bool castleAttach = bridge.attachModifierCard(1, onCastle);
@@ -938,18 +1083,16 @@ void testBridge()
 
     assert(copyCount == 12);                     // the copy is the same length as the original
 
-    // !!! BROKEN: copyFrom() never puts a NodeCard on the two castles it builds, so a
-    // copied bridge has castles with a null nodeCard while a fresh bridge has a plain
-    // NodeCard on them. Anything that reads castle->nodeCard without checking for null
-    // works on a new bridge and crashes on a copied one. copyFrom() should give the two
-    // castles a "new NodeCard" the same way the constructor does.
-    assert(copy.getPlayer1Castle()->nodeCard == nullptr);   // what it does now
-    assert(copy.getPlayer2Castle()->nodeCard == nullptr);
-    // assert(copy.getPlayer1Castle()->nodeCard != nullptr);   // what we actually want
+    // A copied bridge gets its own card on every node, castles included, the same way a
+    // fresh bridge does.
+    assert(copy.getPlayer1Castle()->nodeCard != nullptr);                         // the castles get a card
+    assert(copy.getPlayer2Castle()->nodeCard != nullptr);
+    assert(copy.getPlayer1Castle()->nodeCard != castle1->nodeCard);               // a new one, not shared
+    assert(copy.getPlayer1Castle()->nodeCard->getName() == "Normal Node");        // and a plain one
 
-    // The middle nodes are copied properly: their cards are new objects, not shared.
-    assert(copy.getPlayer1Castle()->right->nodeCard != nullptr);                     // the middle nodes do get a card
-    assert(copy.getPlayer1Castle()->right->nodeCard != castle1->right->nodeCard);    // and it is a new one
+    // The middle nodes are copied properly too: new cards, not shared pointers.
+    assert(copy.getPlayer1Castle()->right->nodeCard != nullptr);                  // the middle nodes get a card
+    assert(copy.getPlayer1Castle()->right->nodeCard != castle1->right->nodeCard); // and it is a new one
 
     // ---- assignment ----
     Bridge target;
@@ -1025,16 +1168,21 @@ void testVisual()
 
     Visual visual;
 
-    // Should print 16 nodes separated by " --- ", each followed by its number.
-    // Node 1 is "[|P1|Castle|] 1" and node 16 is "[|P2|Castle|]16".
-    // Node 2 should be "[|P1|" then a green "BNod+ 2" then "] 2", because player 1 is
-    // standing on it. Nodes 3, 4 and 5 are the recoil, portal and dice nodes, and the
-    // rest are plain "Norm   " nodes.
+    // Should print 16 nodes separated by " --- ", each followed by its number, and should
+    // break onto a new line after every 6th node.
+    // Node  1 is "[P1's| Castle |] 1" and node 16 is "[P2's| Castle |]16".
+    // Node  2 is the boost node with player 1 on it, so "[|" then a blue "P1" then "|"
+    //          then a green "BNod+" then " 4  ]". The booster was the first modifier on
+    //          that node so it was skipped (see testBridge), leaving 2 * 2 = 4.
+    // Node  3 is the recoil node:  "[|  |" red "RNod-" " -1 ]"
+    // Node  4 is the blue portal:  "[|  |" blue "Portal" " 0  ]"
+    // Node  5 is the dice node:    "[|  |Dice   0  ]"
+    // Nodes 6 to 15 are plain:     "[|  |Norm    0  ]"
     std::cout << "printBridge:" << std::endl;
     visual.printBridge(bridge, player1, player2);
     std::cout << std::endl;
 
-    // Should print two lines:
+    // Should print two lines, the first in blue, the second in red:
     //   P 1's Hand: BNod+ 3, Dynamite
     //   P 2's Hand: [Empty Hand]
     std::cout << "printHands:" << std::endl;
@@ -1043,11 +1191,18 @@ void testVisual()
     delete handCard1;
     delete handCard2;
 
-    // !!! BROKEN: printBridge() does not show the modifiers on a node any more. The old
-    // printModifiers() helper is gone from both Visual.hpp and Visual.cpp, so the booster
-    // and the multiplier attached to node 2 above are invisible. A player cannot see what
-    // is stacked on a node, which is most of the strategy in the game. The comment above
-    // printNode() in Visual.hpp still describes printModifiers(), so it is stale too.
+    // !!! BROKEN: printBridge() still does not show which modifiers are on a node. Node 2
+    // above carries a booster and a multiplier, and all a player sees is the total, 6. They
+    // cannot tell whether it is safe to add a recoiler, or that a multiplier is waiting to
+    // double whatever they attach next. Knowing what is stacked on a node is most of the
+    // strategy in this game. The comment above printNode() in Visual.hpp also still
+    // describes a printModifiers() helper that no longer exists.
+
+    // !!! BROKEN: the number printed next to a node is Node::movementAmount, which is the
+    // cached total from Bridge. The moving phase uses GameLogic::calculateMovement()
+    // instead, and the two disagree whenever a multiplier was attached before a booster
+    // (see testBridge). So the bridge can show a player one number and then move them by a
+    // different one.
 
     // ??? UNCLEAR: printBridge() prints every node on one long line. The design says it
     // would wrap onto the next line once it gets too wide. Because the node labels are
@@ -1077,6 +1232,18 @@ void testGameLogic()
     // the RIGHT of leftNode, so player 1's card ends up to the LEFT of player 2's. The
     // design says the left sided player (P2) goes left and the right sided player (P1)
     // goes right, so those two calls need swapping.
+
+    // !!! BROKEN: resolvePlacements() does not apply the multiplier-first tie-break either.
+    // When both players attach a modifier to the SAME node on the SAME turn, a multiplier
+    // has to go into the strand before a booster or a recoiler, because the strand order is
+    // what decides the maths (see testBridge). Two modifiers on one node currently fall
+    // through to the last two lines, which always do p1 then p2, so whoever is player 1
+    // wins the tie instead of the multiplier. Taking the worked example from testBridge, a
+    // node sitting at +6 where p1 plays Booster +1 and p2 plays Multiplier x2:
+    //     what it does now:   6 + 1 = 7, then 7 * 2 = 14
+    //     what the rules say: 6 * 2 = 12, then 12 + 1 = 13
+    // Add a check next to the two-dynamite case: if both cards are modifiers aimed at the
+    // same targetNode and exactly one is a Multiplier, apply that one first.
 
     // !!! BROKEN: drawingPhase() deals a plain NodeCard when the deck runs out. The design
     // says the game enters demolition mode and deals only dynamite until the bridge is

@@ -7,38 +7,38 @@ class Card;
 class Deck
 {
 public:
-    Deck();
     // postcondition: Initializes the deck for the start of the game
+    Deck();
 
-    ~Deck();
     // postcondition: deletes the deck
+    ~Deck();
 
-    Card* drawCard();
     // postcondition: draws a card from the deck and without returning it
+    Card* drawCard();
 
-    int getDeckSize() const;
     // postcondition: returns the number of cards in the deck
+    int getDeckSize() const;
 
-    Card* getCard(int index) const;
     // postcondition: returns the card at the specified index in the deck
+    Card* getCard(int index) const;
 
-    bool isEmpty() const;
     // postcondition: returns true if the deck is empty, false otherwise
+    bool isEmpty() const;
 
-    void generateStartingDeck();
     // postcondition: generates the starting deck for the game
+    void generateStartingDeck();
 
-    void generateDeckForState(int bridgeSize, int player1NodeIndex, int player2NodeIndex);
     // postcondition: generates a deck based on the current state of the game
+    void generateDeckForState(int bridgeSize, int player1NodeIndex, int player2NodeIndex);
 
-    void shuffleDeck();
     // postcondition: shuffles the deck of cards
+    void shuffleDeck();
 
-    std::string outputDeck() const;
     // postcondition: returns a string representation of the deck
+    std::string outputDeck() const;
 
-    Card* drawCardAtIndex(int index);
     // postcondition: draws a card from the deck at the specified index without returning it  
+    Card* drawCardAtIndex(int index);
     
 private:
     static const int MAX_DECK_SIZE = 50;
@@ -47,14 +47,13 @@ private:
     int deckNumber;
     double u_previous;
 
-    bool addCard(Card* card);
     // postcondition: adds a card to the deck and returns true if successful, false if the deck is full
+    bool addCard(Card* card);
 
-    void clearDeck();
     // postcondition: Deletes all cards in the deck and sets deckSize to 0
+    void clearDeck();
 
+    // postcondition: return the tier of the bridge state
     void buildTier(int tier);
-
-
 };
 #endif

@@ -47,6 +47,7 @@ void Bridge::clear() {
     Node* myTemporaryptr;
     while (numberOfNodes > 0) {
         myTemporaryptr = player1Castle->right;
+        // clear all modifiers 
         if (player1Castle->beginningOfStrand != nullptr) modifierStrandDeleter(player1Castle->beginningOfStrand);
         delete player1Castle->nodeCard;
         delete player1Castle;
@@ -147,22 +148,29 @@ bool Bridge::insertCard(const int& leftNode, const int& rightNode, NodeCard* new
 
 bool Bridge::attachModifierCard(const int& targetNode, ModifierCard* modifier) {
     if (!isValidNode(targetNode)) return false;
+    // get to the node
     Node* tempptr = travelToNode(targetNode);
+    // if the modifier card strand is empty
     if (tempptr->beginningOfStrand == nullptr) {
         tempptr->beginningOfStrand = new ModifierStrand;
         tempptr->beginningOfStrand->modifierCard = modifier;
         tempptr->beginningOfStrand->next = nullptr;
+        // update the new modifier
+        tempptr->movementAmount = modifier->getModifiedAmount(tempptr->movementAmount);
         return true;
     }
+    // if there are more modifier 
     ModifierStrand* modifierTempptr = tempptr->beginningOfStrand;
+    // find the last modifier
     while (modifierTempptr->next != nullptr) {
         modifierTempptr = modifierTempptr->next;
     }
+    // add the new modifier
     modifierTempptr->next = new ModifierStrand;
     modifierTempptr = modifierTempptr->next;
     modifierTempptr->modifierCard = modifier;
     modifierTempptr->next = nullptr;
-
+    // update the new modiifer 
     tempptr->movementAmount = modifier->getModifiedAmount(tempptr->movementAmount);
     return true;
 }
@@ -170,13 +178,16 @@ bool Bridge::attachModifierCard(const int& targetNode, ModifierCard* modifier) {
 
 bool Bridge::removeNode(const int& targetNode) {
     if (!isValidNode(targetNode)) return false;
+    // find the node
     Node* tempptr = travelToNode(targetNode);
     Node* tempptrLeft = tempptr->left;
     Node* tempptrRight = tempptr->right;
+    // delete the modifier strands first
     if (tempptr->beginningOfStrand != nullptr) modifierStrandDeleter(tempptr->beginningOfStrand);
+    // delete the nodes
     delete tempptr->nodeCard;
     delete tempptr;
-
+    // relink
     tempptrLeft->right = tempptrRight;
     tempptrRight->left = tempptrLeft;
     numberOfNodes--;

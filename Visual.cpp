@@ -8,6 +8,7 @@ Visual::Visual()
 
 void Visual::printBridge(const Bridge& bridge, const Player& player1, const Player& player2) const
 {
+    std::cout << "< The Bridge >";
     Node* currentNode = bridge.getPlayer1Castle();
     int index = 1;
 
@@ -19,7 +20,7 @@ void Visual::printBridge(const Bridge& bridge, const Player& player1, const Play
             std::cout << " --- ";
         }
         currentNode = currentNode->right;
-        if (index % 5 == 0) std::cout << std::endl;
+        if (index % 6 == 0) std::cout << std::endl;
         index++;
     }
 }

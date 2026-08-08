@@ -77,10 +77,11 @@ bool Deck::addCard(Card* card) {
 
 void Deck::generateDeckForState(int bridgeSize, int player1NodeIndex, int player2NodeIndex) {
     clearDeck();
-    
+    // find the least distance required for one of the players to finish
     int distanceToFinishFor1 = bridgeSize - player1NodeIndex;
     int distanceToFinishFor2 = player2NodeIndex;
     int minDistanceToFinish = std::min(distanceToFinishFor1, distanceToFinishFor2);
+    // define constants 
     const double maxWantedDeckGeneration = 3.0;
     const double startingBridgeLength = 12.0;
     const double startingDistanceToCross = startingBridgeLength - 1;

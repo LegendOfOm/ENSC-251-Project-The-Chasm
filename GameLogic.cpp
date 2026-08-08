@@ -13,6 +13,7 @@
 #include "Visual.hpp"
 #include <iostream>
 #include <cmath>
+// #define HIDE_INPUT
 
 GameLogic::GameLogic() : bridge(), player1(1, bridge.getPlayer1Castle()), player2(2, bridge.getPlayer2Castle()), turnNumber(0), gameOver(false) {
     
@@ -39,6 +40,9 @@ void GameLogic::startGame() {
         }
         std::cout << "Press 'Q' to quit or any other key to continue: ";
         std::cin >> choice;
+        #ifdef HIDE_INPUT
+        std::cout << "\033[A\r\033[2K";
+        #endif 
         if (!gameOver && (choice == 'Q' || choice == 'q')) {
             gameOver = true;
             std::cout << "game over" << std::endl;
@@ -48,8 +52,10 @@ void GameLogic::startGame() {
 
 void GameLogic::runTurn() {
     Visual visual;
-
-    std::cout << "turn " << turnNumber << std::endl;
+    
+    std::cout << "------" << std::endl;
+    std::cout << "Turn " << turnNumber << std::endl;
+    std::cout << "------" << std::endl;
 
     drawingPhase(player1);
     drawingPhase(player2);
@@ -84,7 +90,6 @@ void GameLogic::runTurn() {
 
     movingPhase(player1);
     movingPhase(player2);
-
     visual.printBridge(bridge, player1, player2);
     std::cout << std::endl;
 
@@ -92,6 +97,7 @@ void GameLogic::runTurn() {
 }
 
 void GameLogic::drawingPhase(Player& player) {
+    
     std::cout << "Drawing phase for player " << player.getPlayerId() << std::endl;
     for (int i = 0; i < Player::CARDS_DRAWN_PER_TURN; i++) {
         if (!deck.isEmpty()) {
@@ -110,6 +116,7 @@ void GameLogic::drawingPhase(Player& player) {
             break;
         }
     }
+    std::cout << "\n";
 }
 
 GameLogic::placementChoice GameLogic::placingPhase(Player& player)
@@ -148,8 +155,12 @@ GameLogic::placementChoice GameLogic::placingPhase(Player& player)
         << ", or -1 to skip placing: ";
 
         std::cin >> choice.cardIndex;
+        #ifdef HIDE_INPUT
+        std::cout << "\033[A\r\033[2K";
+        #endif
         if (choice.cardIndex == -1) {
             std::cout << "Player " << player.getPlayerId() << " is skipping placing" << std::endl;
+            std::cout << "\n";
             return choice;
         }
 
@@ -173,6 +184,9 @@ GameLogic::placementChoice GameLogic::placingPhase(Player& player)
             while(true){
                 std::cout << "Enter the 2 adjacent nodes you want to place the card between: ";
                 std::cin >> choice.leftNode >> choice.rightNode;
+                #ifdef HIDE_INPUT
+                std::cout << "\033[A\r\033[2K";
+                #endif
                 if (bridge.isValidNodePlacement(choice.leftNode, choice.rightNode)) {
                     PortalNode* portal = dynamic_cast<PortalNode*>(nodeCard);
 
@@ -198,6 +212,9 @@ GameLogic::placementChoice GameLogic::placingPhase(Player& player)
                 while (true) {
                     std::cout << "Enter the node you want to place the modifier on: ";
                     std::cin >> choice.targetNode;
+                    #ifdef HIDE_INPUT
+                    std::cout << "\033[A\r\033[2K";
+                    #endif
                     if (bridge.isValidNode(choice.targetNode)) {
                         break;
                     }
@@ -208,14 +225,15 @@ GameLogic::placementChoice GameLogic::placingPhase(Player& player)
 
         choice.valid = true;
 
-        std::cout << "Player "
-                  << player.getPlayerId()
-                  << " selected: "
-                  << choice.card->getName()
-                  << std::endl;
+        // std::cout << "Player "
+        //           << player.getPlayerId()
+        //           << " selected: "
+        //           << choice.card->getName()
+        //           << std::endl;
 
         break;
     }
+    std::cout << "\n";
 
     return choice;
 }
@@ -549,6 +567,8 @@ void GameLogic::movingPhase(Player& player)
 
         movePlayer(player, movement);
     }
+    std::cout << "\n";
+
 }
 
 void GameLogic::checkWinCondition() {
