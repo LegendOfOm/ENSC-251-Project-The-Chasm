@@ -2,15 +2,18 @@
 #include "Visual.hpp"
 #include <iostream>
 
+// Default constructor for the Visual class.
 Visual::Visual()
 {
 }   
-
+// Prints the entire bridge from Player 1's castle to Player 2's castle.
 void Visual::printBridge(const Bridge& bridge, const Player& player1, const Player& player2) const
 {
+    // Start at Player 1's castle.
     Node* currentNode = bridge.getPlayer1Castle();
     int index = 1;
 
+    // Travel through the bridge until the end is reached.
     while (currentNode != nullptr)
     {
         printNode(currentNode, index, player1, player2, bridge);
@@ -19,11 +22,13 @@ void Visual::printBridge(const Bridge& bridge, const Player& player1, const Play
             std::cout << " --- ";
         }
         currentNode = currentNode->right;
+        // Start a new line after every 5 nodes.
         if (index % 5 == 0) std::cout << std::endl;
         index++;
     }
 }
 
+// Prints one individual node on the bridge.
 void  Visual::printNode(const Node* node, int index, const Player& player1, const Player& player2, const Bridge& bridge) const
 {
     if (node->isPlayer1Castle)
@@ -43,10 +48,12 @@ void  Visual::printNode(const Node* node, int index, const Player& player1, cons
         {
             std::cout << "12";
         }
+        // Display Player 1 in blue if they are on this node.
         else if (player1.getCurrentNode() == node)
         {
             std::cout << "\033[34mP1\033[0m";
         }
+        // Display Player 2 in red if they are on this node.
         else if (player2.getCurrentNode() == node)
         {
             std::cout << "\033[31mP2\033[0m";
@@ -57,7 +64,8 @@ void  Visual::printNode(const Node* node, int index, const Player& player1, cons
         }
 
         std::cout << "|";
-        
+
+        // If the node contains a NodeCard, display that card.
         if (node->nodeCard != nullptr)
         {
             std::cout << node->nodeCard->output();
@@ -90,6 +98,7 @@ void  Visual::printNode(const Node* node, int index, const Player& player1, cons
     }
 }
 
+// Prints the hands of both players.
 void Visual::printHands(const Player& player1,const Player& player2) const
 {
     printHandHelper(player1);
@@ -109,6 +118,7 @@ void Visual::printHandHelper(const Player& player) const
     }
     else
     {
+        // Go through every card in the player's hand.
         for (int i = 0; i < player.getHandSize(); ++i)
         {
             Card* card = player.getCardInHand(i);
