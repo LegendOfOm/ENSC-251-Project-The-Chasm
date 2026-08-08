@@ -14,8 +14,8 @@
 #include <string>
 #include <algorithm>
 #include <cmath>
-#include <chrono>
-#include <random>
+#include "rng.hpp"
+
 Deck::Deck() : deckSize(0), deckNumber(0), u_previous(0) {}
 
 Deck::~Deck() {
@@ -192,16 +192,7 @@ void Deck::buildTier(int tier)
 }
 
 void Deck::shuffleDeck() {
-    try {
-        std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-        std::shuffle(cards, cards + deckSize, rng);
-    }
-    catch (std::bad_alloc) {
-        std::cout << "you are stupid" << std::endl;
-    }
-    catch (...) {
-        std::cout << "okay, you are REALLY stupid" << std::endl;
-    }
+    std::shuffle(cards, cards + deckSize, rng::randomNumber);
 }
 
 
