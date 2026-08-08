@@ -9,6 +9,7 @@ Visual::Visual()
 // Prints the entire bridge from Player 1's castle to Player 2's castle.
 void Visual::printBridge(const Bridge& bridge, const Player& player1, const Player& player2) const
 {
+    std::cout << "< The Bridge >";
     // Start at Player 1's castle.
     Node* currentNode = bridge.getPlayer1Castle();
     int index = 1;
@@ -22,8 +23,8 @@ void Visual::printBridge(const Bridge& bridge, const Player& player1, const Play
             std::cout << " --- ";
         }
         currentNode = currentNode->right;
-        // Start a new line after every 5 nodes.
-        if (index % 5 == 0) std::cout << std::endl;
+        // Start a new line after every 7 nodes.
+        if (index % 7 == 0) std::cout << std::endl;
         index++;
     }
 }
