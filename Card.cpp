@@ -23,3 +23,8 @@ std::string Card::output() const
 {
     return name;
 }
+
+std::string Card::Handoutput() const
+{
+    return name;
+}

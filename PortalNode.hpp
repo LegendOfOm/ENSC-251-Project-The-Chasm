@@ -14,7 +14,7 @@ public:
     std::string getColour() const;
     void setConnectedPortal(PortalNode* portal);
     PortalNode* getConnectedPortal() const;
-
+    std::string Handoutput() const override;
     std::string output() const override;
     PortalNode* clone() const override;
 };

@@ -18,5 +18,6 @@ public:
     std::string getName() const;
     // Returns a fixed-width card label
     virtual std::string output() const;
+    virtual std::string Handoutput() const;
 };
 #endif

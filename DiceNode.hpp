@@ -10,6 +10,7 @@ public:
     int rollDice() const;
     std::string output() const override;
     DiceNode* clone() const override;
+    std::string Handoutput() const override;
 };
 
 #endif

@@ -19,3 +19,16 @@ BoostNode* BoostNode::clone() const
 {
     return new BoostNode(*this);
 }
+
+std::string BoostNode::Handoutput() const
+{
+    const std::string colorCode = "\033[32m"; // Green color code
+    const std::string resetCode = "\033[0m"; // Reset color code
+    std::string amount = std::to_string(boostAmount);
+    if (amount < "10")
+    {
+        amount = " " + amount;
+    }
+    return colorCode + "BNod+" + amount + resetCode;
+
+}

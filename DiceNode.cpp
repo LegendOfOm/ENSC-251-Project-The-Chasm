@@ -24,3 +24,8 @@ DiceNode* DiceNode::clone() const
 {
     return new DiceNode(*this);
 }
+
+std::string DiceNode::Handoutput() const
+{
+    return "Dice   ";
+}

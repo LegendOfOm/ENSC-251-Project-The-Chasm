@@ -103,7 +103,7 @@ void Visual::printHandHelper(const Player& player) const
             Card* card = player.getCardInHand(i);
             if (card != nullptr)
             {
-                std::cout << card->output();
+                std::cout << card->Handoutput();
                 if (i < player.getHandSize() - 1)
                 {
                     std::cout << ", ";

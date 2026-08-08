@@ -12,6 +12,7 @@ public:
     virtual int getMovementAmount() const;
     std::string output() const override;
     virtual NodeCard* clone() const;
+    std::string Handoutput() const override;
 };
 
 #endif
