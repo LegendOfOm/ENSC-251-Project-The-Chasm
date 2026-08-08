@@ -27,12 +27,12 @@ void  Visual::printNode(const Node* node, int index, const Player& player1, cons
 {
     if (node->isPlayer1Castle)
     {
-        std::cout << "[|P1|Castle|]";
+        std::cout << "[|P1| Castle |]";
     }
 
     else if (node->isPlayer2Castle)
     {
-        std::cout << "[|P2|Castle|]";
+        std::cout << "[|P2| Castle |]";
     }
 
     else
