@@ -27,12 +27,12 @@ void  Visual::printNode(const Node* node, int index, const Player& player1, cons
 {
     if (node->isPlayer1Castle)
     {
-        std::cout << "[|P1| Castle |]";
+        std::cout << "[P1's Castle |]";
     }
 
     else if (node->isPlayer2Castle)
     {
-        std::cout << "[|P2| Castle |]";
+        std::cout << "[P2's Castle |]";
     }
 
     else
@@ -44,11 +44,11 @@ void  Visual::printNode(const Node* node, int index, const Player& player1, cons
         }
         else if (player1.getCurrentNode() == node)
         {
-            std::cout << "P1";
+            std::cout << "\033[34mP1\033[0m";
         }
         else if (player2.getCurrentNode() == node)
         {
-            std::cout << "P2";
+            std::cout << "\033[31mP2\033[0m";
         }
         else
         {
@@ -92,8 +92,12 @@ void Visual::printHands(const Player& player1,const Player& player2) const
 }
 
 void Visual::printHandHelper(const Player& player) const
-{
-    std::cout << "P " << player.getPlayerId() << "'s Hand: ";
+{   if (player.getPlayerId() == 1) {
+        std::cout << "\033[34m"; // Blue color code for Player 1
+    } else {
+        std::cout << "\033[31m"; // Red color code for Player 2
+    }
+    std::cout << "P " << player.getPlayerId() << "\033[0m" << "'s Hand: ";
     if (player.getHandSize() == 0)
     {
         std::cout << "[Empty Hand]";

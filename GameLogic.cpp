@@ -54,8 +54,6 @@ void GameLogic::runTurn() {
     drawingPhase(player1);
     drawingPhase(player2);
 
-    visual.printHands(player1, player2);
-
     bool p1Finished = false;
     bool p2Finished = false;
 
@@ -117,6 +115,7 @@ void GameLogic::drawingPhase(Player& player) {
 GameLogic::placementChoice GameLogic::placingPhase(Player& player)
 {
     placementChoice choice{};
+    Visual visual;
 
     choice.player = &player;
     choice.card = nullptr;
@@ -137,14 +136,10 @@ GameLogic::placementChoice GameLogic::placingPhase(Player& player)
         return choice;
     }
 
-    for (int i = 0; i < player.getHandSize(); i++)
-    {
-        Card* card = player.getCardInHand(i);
-
-        if (card != nullptr)
-        {
-            std::cout << i << ": " << card->getName() << std::endl;
-        }
+    if (player.getPlayerId() == 1) {
+        visual.printHands(player1, player2);
+    } else {
+        visual.printHands(player2, player1);
     }
 
     while (true)
@@ -154,7 +149,7 @@ GameLogic::placementChoice GameLogic::placingPhase(Player& player)
 
         std::cin >> choice.cardIndex;
         if (choice.cardIndex == -1) {
-            std::cout << "Player " << player.getPlayerId() << "is skipping placing" << std::endl;
+            std::cout << "Player " << player.getPlayerId() << " is skipping placing" << std::endl;
             return choice;
         }
 
