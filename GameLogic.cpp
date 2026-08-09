@@ -317,6 +317,21 @@ GameLogic::placementChoice GameLogic::placingPhase(Player& player)
 
                     // Castle nodes and nodes outside the bridge cannot be modified.
                     if (bridge.isValidNode(choice.targetNode)) {
+                        Dynamite* dynamite = dynamic_cast<Dynamite*>(modifierCard);
+                        
+                        if (dynamite != nullptr) {
+                            Node* targetNode = bridge.getPlayer1Castle();
+
+                            for (int i = 1; i < choice.targetNode; i++) {
+                                targetNode = targetNode->right;
+                            }
+
+                            if (targetNode == player1.getCurrentNode() || targetNode == player2.getCurrentNode()) {
+                                std::cout << "Cannot remove node with player on it, choose another node: " << std::endl;
+                                continue;
+                            }
+                        }
+                        
                         break;
                     }
                     std::cout << "Not valid, please try again." << std::endl;
@@ -537,6 +552,38 @@ void GameLogic::resolvePlacements(placementChoice& p1choice, placementChoice& p2
             applyPlacement(p1choice);
         }
 
+        return;
+    }
+
+    Dynamite* p1Dynamite = dynamic_cast<Dynamite*>(p1choice.card);
+    Dynamite* p2Dynamite = dynamic_cast<Dynamite*>(p2choice.card);
+
+    /*
+    If Player 1 places a node and Player 2 uses Dynamite,
+    place the node first so its selected gap does not change.
+    The Dynamite index is increased if the inserted node shifts its target.
+    */
+    if (p1NodeCard != nullptr && p2Dynamite != nullptr) {
+        int insertedIndex = p1choice.rightNode;
+        bool succeeded = applyPlacement(p1choice);
+        if (succeeded && insertedIndex <= p2choice.targetNode) {
+            p2choice.targetNode++;
+        }
+        applyPlacement(p2choice);
+        return;
+    }
+
+    /*
+    If Player 2 places a node and Player 1 uses Dynamite,
+    place the node first and update the Dynamite target if needed.
+    */
+    if(p2NodeCard != nullptr && p1Dynamite != nullptr) {
+        int insertedIndex = p2choice.rightNode;
+        bool succeeded = applyPlacement(p2choice);
+        if (succeeded && insertedIndex <= p1choice.targetNode) {
+            p1choice.targetNode++;
+        }
+        applyPlacement(p1choice);
         return;
     }
 
