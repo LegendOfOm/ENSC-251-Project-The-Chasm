@@ -14,7 +14,7 @@ public:
     // postcondition: creates a Recoiler card and initializes recoilAmount
     Recoiler(int amount);
 
-    // postcondition: returns the recoil amount of this card
+    // postcondition: returns the recoil amount of this card in negative
     int getRecoilAmount() const;
 
     // postcondition: creates and returns a dynamically allocated copy

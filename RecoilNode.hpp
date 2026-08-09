@@ -14,7 +14,7 @@ public:
     // postcondition: creates a RecoilNode and initializes recoilAmount
     RecoilNode(int amount);
 
-    // postcondition: returns the movement amount of this RecoilNode
+    // postcondition: returns the movement amount of this RecoilNode in negative 
     int getMovementAmount() const override;
 
     // postcondition: returns a string representation of the RecoilNode

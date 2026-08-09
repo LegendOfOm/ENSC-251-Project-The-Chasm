@@ -126,6 +126,7 @@ void Bridge::modifierStrandDeleter(ModifierStrand* tempptr) {
 
 bool Bridge::insertCard(const int& leftNode, const int& rightNode, NodeCard* newNodeCard) {
     if (!isValidNodePlacement(leftNode, rightNode)) return false;
+    if (newNodeCard == nullptr) return false;
     // find target node
     Node* tempptrLeft = travelToNode(leftNode);
     Node* tempptrRight = tempptrLeft->right;

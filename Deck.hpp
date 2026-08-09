@@ -25,9 +25,6 @@ public:
     // postcondition: returns true if the deck is empty, false otherwise
     bool isEmpty() const;
 
-    // postcondition: generates the starting deck for the game
-    void generateStartingDeck();
-
     // postcondition: generates a deck based on the current state of the game
     void generateDeckForState(int bridgeSize, int player1NodeIndex, int player2NodeIndex);
 

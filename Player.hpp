@@ -15,43 +15,53 @@ public:
 
     Player(int playerId, Node* startingCastle);
     // postcondition for initializing player starting positions
+
     ~Player();
+    
     Player(const Player& other);
     // postcondition creating copy of other player
+    
     Player& operator=(const Player& other);
     // postcondition assigns other player values to this player
 
     int getPlayerId() const;
     // postcondition returns the player id
+    
     Node* getCurrentNode() const;
     // postcondition returns the node of current node
+    
     void setCurrentNode(Node* node);
     // postcondition sets the current node to new node
+    
     Node* getCastleNode() const;
     // postcondition returns castle node
 
     // Drawing Phase
+    
     bool addCardToHand(Card* card);
     // postcondition adds a card to the hand if not full
+    
     bool removeCardFromHand(Card* card);
     // postcondition removes card from the hand if present
+    
     int getHandSize() const;
     // postcondition returns number of cards in hand at the time
+    
     Card* getCardInHand(int index) const;
     // postcondition returns the card at the given index and nullptr if out of range
+    
     bool isHandFull() const;
     // postcondition returns whether hand has reached MAX_HAND_SIZE
 
     // Moving Phase
+    
     bool hasActivated(const Node* node) const;
     // postcondition returns whether node already has been activated this turn
+    
     void markActivated(Node* landedNode);
+    
     void resetActivatedCardsForNewTurn();
 
-    // Win Condition
-    bool hasWon() const;
-    // win or not
-    void setWon(bool won);
 
 private:
     int playerId;
@@ -59,7 +69,6 @@ private:
     Node* castleNode;                          
     Card* hand[MAX_HAND_SIZE];
     int handSize;
-    bool won;
     std::vector<Node*> activatedCardsThisTurn;  
 };
 

@@ -60,14 +60,6 @@ Card* Deck::getCard(int index) const {
     return cards[index];
 }
 
-void Deck::generateStartingDeck() {
-    clearDeck();
-    // Example: Add cards to the deck (I didn't make the card generation logic so u gotta do it :D)
-    for (int i = 0; i < MAX_DECK_SIZE; ++i) {
-        addCard(new Card("Card " + std::to_string(i + 1)));
-    }
-}
-
 bool Deck::addCard(Card* card) {
     if (deckSize >= MAX_DECK_SIZE) return false;
     cards[deckSize] = card;

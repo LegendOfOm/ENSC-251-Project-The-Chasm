@@ -51,7 +51,7 @@ std::string PortalNode::output() const
         return "\033[38;5;208mPortal\033[0m";
     }
 
-    return "Portal ";
+    return "Portal";
 }
 
 // Creates and returns a new copy of the current PortalNode object.

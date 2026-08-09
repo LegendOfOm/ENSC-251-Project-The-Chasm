@@ -32,5 +32,5 @@ std::string RecoilNode::Handoutput() const
     const std::string colorCode = "\033[31m"; // Red color code
     const std::string resetCode = "\033[0m"; // Reset color code
     std::string amount = std::to_string(recoilAmount);
-    return colorCode + "RNod- " + amount + resetCode;
+    return colorCode + "RNod-" + amount + resetCode;
 }

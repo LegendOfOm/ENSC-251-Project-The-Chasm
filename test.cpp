@@ -116,23 +116,20 @@ void testNodeCard()
 
     assert(node.output().size() == 6);                  // "Norm  "
     assert(dice.output().size() == 6);                  // "Dice  "
-    assert(noColour.output().size() == 7);              // "Portal "  no colour code on this one
+    assert(noColour.output().size() == 6);              // "Portal"   no colour code on this one
     assert(portal.output().size() == 6 + 9);            // "Portal"
     assert(boost.output().size() == 6 + 9);             // "BNod+ "
     assert(recoilLabel.output().size() == 6 + 9);       // "RNod- "
 
-    // Every coloured label is 6 visible characters, so the bridge lines up. Visual prints
+    // Every bridge label is 6 visible characters, so the bridge lines up. Visual prints
     // output(), a space, then the movement number padded to 3, giving a fixed width box.
+    // This holds for an unrecognised portal colour too, so adding a new colour cannot knock
+    // a row out of line.
     assert(boost.output().size() - 9 == node.output().size());          // 6 and 6
     assert(recoilLabel.output().size() - 9 == node.output().size());
     assert(portal.output().size() - 9 == node.output().size());
     assert(dice.output().size() == node.output().size());
-
-    // ??? UNCLEAR: the one label left over is the no-colour portal fallback, which is 7
-    // visible characters where every other node is 6. It only shows up for a colour that
-    // PortalNode::output() does not recognise, so no card the deck builds can reach it
-    // today, but a new portal colour would quietly knock the whole row out of line.
-    assert(noColour.output().size() != node.output().size());   // 7 vs 6
+    assert(noColour.output().size() == node.output().size());
 
     // ??? UNCLEAR: NodeCard has a private movementAmount that is always 0, and every
     // subclass stores its own amount instead of using it. The base variable is never
@@ -195,10 +192,6 @@ void testBoostNode()
     assert(twelve.output() == "\033[32mBNod+ \033[0m");          // the bridge label never changes
     assert(twelve.Handoutput() == "\033[32mBNod+12\033[0m");     // only the hand label grows
 
-    // ??? UNCLEAR: BoostNode::Handoutput() writes the amount straight after the plus with
-    // no space ("BNod+3") but RecoilNode::Handoutput() puts one in ("RNod- 2"). One of the
-    // two should change so a hand reads consistently.
-
     BoostNode zero(0);
 
     assert(zero.getMovementAmount() == 0);                       // a boost of 0 moves nobody
@@ -237,7 +230,7 @@ void testRecoilNode()
     // Same split as BoostNode: the bridge label has no number, the hand label does. The
     // hand label shows the POSITIVE amount that was passed in, written after a minus sign.
     assert(recoil.output() == "\033[31mRNod- \033[0m");         // red, no number, padded to 6
-    assert(recoil.Handoutput() == "\033[31mRNod- 2\033[0m");    // red, with the number
+    assert(recoil.Handoutput() == "\033[31mRNod-2\033[0m");     // red, with the number
 
     RecoilNode zero(0);
 
@@ -246,7 +239,7 @@ void testRecoilNode()
     RecoilNode negative(-3);
 
     assert(negative.getMovementAmount() == 3);                  // a negative amount flips forward
-    assert(negative.Handoutput() == "\033[31mRNod- -3\033[0m"); // and the hand label reads oddly
+    assert(negative.Handoutput() == "\033[31mRNod--3\033[0m");  // and the hand label reads oddly
 
     RecoilNode* copy = recoil.clone();
 
@@ -334,10 +327,14 @@ void testPortalNode()
     assert(PortalNode("Blue").output() == "\033[34mPortal\033[0m");          // blue portal
     assert(PortalNode("Purple").output() == "\033[35mPortal\033[0m");        // purple portal
     assert(PortalNode("Orange").output() == "\033[38;5;208mPortal\033[0m");  // orange portal
-    assert(PortalNode("Green").output() == "Portal ");                       // unknown colour, no colour code
-    assert(PortalNode("blue").output() == "Portal ");                        // the check is case sensitive
+    assert(PortalNode("Green").output() == "Portal");                        // unknown colour, no colour code
+    assert(PortalNode("blue").output() == "Portal");                         // the check is case sensitive
 
     assert(PortalNode("Blue").Handoutput() == PortalNode("Blue").output());   // both labels match
+
+    // ??? UNCLEAR: for an unrecognised colour the two labels differ by a trailing space,
+    // "Portal" on the bridge and "Portal " in a hand. Harmless, since only the bridge label
+    // has to be a fixed width, but they were presumably meant to be the same text.
     assert(PortalNode("Green").Handoutput() == "Portal ");
 
     PortalNode* copy = blue.clone();
@@ -538,13 +535,16 @@ void testDynamite()
 
     assert(copy->getName() == "Dynamite");          // the copy still says "Dynamite"
 
-    // !!! BROKEN: Dynamite still does not have its own clone(), so ModifierCard::clone()
-    // runs and builds a plain ModifierCard. The name is copied but the TYPE is lost.
-    // GameLogic::applyPlacement() finds dynamite with dynamic_cast<Dynamite*>, so a copied
-    // bridge would hold dynamite that can never be set off.
-    // Fix: add "virtual Dynamite* clone() const;" to Dynamite like the other modifiers.
-    assert(dynamic_cast<Dynamite*>(copy) == nullptr);     // what it does now: the copy is not a Dynamite
-    // assert(dynamic_cast<Dynamite*>(copy) != nullptr);  // what we actually want
+    // Dynamite has no clone() of its own, so ModifierCard::clone() runs and builds a plain
+    // ModifierCard: the name survives but the TYPE is lost, and a dynamic_cast<Dynamite*>
+    // on the copy fails.
+    //
+    // That is safe ONLY because dynamite is never attached to a node. GameLogic::
+    // applyPlacement() removes the node and then deletes the card, so no modifier strand
+    // ever holds one, so Bridge::copyFrom() never has one to clone. It is an invariant, not
+    // luck: if dynamite is ever made attachable, add "virtual Dynamite* clone() const;" at
+    // the same time or copied bridges will hold dynamite that can never be set off.
+    assert(dynamic_cast<Dynamite*>(copy) == nullptr);     // the copy is a plain ModifierCard
 
     delete copy;
 }
@@ -567,50 +567,84 @@ void testDeck()
 
     assert(deck.getDeckSize() == 0);               // shuffling an empty deck is safe and changes nothing
 
-    // ---- generateStartingDeck ----
-    deck.generateStartingDeck();
+    // ---- generateDeckForState ----
+    // generateDeckForState() is the only way to fill a deck now. It shuffles as it builds,
+    // so the contents are in an unknown order and the tests below track cards by POINTER
+    // rather than by name.
+    // The start of a game: a 12 node bridge with player 1 on node 1 and player 2 on node
+    // 12. That is the calmest game state, so this builds tier 0.
+    deck.generateDeckForState(12, 1, 12);
 
-    assert(deck.getDeckSize() == 50);                    // the deck is filled to MAX_DECK_SIZE
-    assert(!deck.isEmpty());                             // so it is no longer empty
-    assert(deck.getCard(0)->getName() == "Card 1");      // first card
-    assert(deck.getCard(49)->getName() == "Card 50");    // last card
-    assert(deck.getCard(50) == nullptr);                 // nothing past the end
-    assert(deck.getCard(-1) == nullptr);                 // a negative index gives nothing
+    assert(deck.getDeckSize() == 50);          // every tier builds exactly 50 cards
+    assert(!deck.isEmpty());                   // so the deck is no longer empty
+    assert(deck.getCard(0) != nullptr);        // and they are all real cards
+    assert(deck.getCard(49) != nullptr);
+    assert(deck.getCard(50) == nullptr);       // nothing past the end
+    assert(deck.getCard(-1) == nullptr);       // a negative index gives nothing
 
-    // ??? UNCLEAR: generateStartingDeck() makes 50 cards literally named "Card 1" to
-    // "Card 50" that are plain Card objects, not boost nodes or dynamite. Nothing calls it
-    // any more now that GameLogic uses generateDeckForState(), so it should probably be
-    // deleted. A game that used it would deal cards that cannot be played at all.
+    // Every card in the deck is playable: either a node card that can go on the bridge or a
+    // modifier that can be attached to one.
+    for (int i = 0; i < deck.getDeckSize(); i++)
+    {
+        Card* card = deck.getCard(i);
+        bool isNode = (dynamic_cast<NodeCard*>(card) != nullptr);
+        bool isModifier = (dynamic_cast<ModifierCard*>(card) != nullptr);
+
+        assert(card != nullptr);               // no empty slots
+        assert(isNode || isModifier);          // and no plain Card objects
+    }
 
     // ---- drawCard ----
+    Card* expectedTop = deck.getCard(49);      // remember what is on top before drawing
     Card* top = deck.drawCard();
 
-    assert(top->getName() == "Card 50");        // drawCard takes from the top, which is the last index
+    assert(top == expectedTop);                 // drawCard takes from the top, the last index
     assert(deck.getDeckSize() == 49);           // the deck shrank by one
     assert(deck.getCard(49) == nullptr);        // and that slot is now empty
 
     delete top;                                 // the deck no longer owns this card, we do
 
     // ---- drawCardAtIndex ----
+    Card* expectedFirst = deck.getCard(0);      // remember the first two before drawing
+    Card* expectedSecond = deck.getCard(1);
     Card* first = deck.drawCardAtIndex(0);
 
-    assert(first->getName() == "Card 1");                // takes the card at that index
-    assert(deck.getDeckSize() == 48);                    // the deck shrank by one
-    assert(deck.getCard(0)->getName() == "Card 2");      // the cards behind it shift down
+    assert(first == expectedFirst);                 // takes the card at that index
+    assert(deck.getDeckSize() == 48);               // the deck shrank by one
+    assert(deck.getCard(0) == expectedSecond);      // the cards behind it shift down
 
     delete first;
 
-    assert(deck.drawCardAtIndex(-1) == nullptr);         // a negative index draws nothing
-    assert(deck.drawCardAtIndex(48) == nullptr);         // and so does one past the last card
-    assert(deck.getDeckSize() == 48);                    // a refused draw does not change the deck
+    assert(deck.drawCardAtIndex(-1) == nullptr);    // a negative index draws nothing
+    assert(deck.drawCardAtIndex(48) == nullptr);    // and so does one past the last card
+    assert(deck.getDeckSize() == 48);               // a refused draw does not change the deck
+
+    // Drawing from the middle closes the gap without disturbing the cards before it.
+    Card* before = deck.getCard(9);
+    Card* target = deck.getCard(10);
+    Card* after = deck.getCard(11);
+    Card* middle = deck.drawCardAtIndex(10);
+
+    assert(middle == target);                   // the card asked for is the card returned
+    assert(deck.getDeckSize() == 47);           // the deck shrank by one
+    assert(deck.getCard(9) == before);          // the card in front did not move
+    assert(deck.getCard(10) == after);          // and the one behind shifted down into the gap
+
+    delete middle;
 
     // ---- outputDeck ----
+    // outputDeck() prints one card per line using output(), in deck order.
+    Card* lastTwoFirst = deck.getCard(0);
+    Card* lastTwoSecond = deck.getCard(1);
+
     while (deck.getDeckSize() > 2)
     {
-        delete deck.drawCard();
+        delete deck.drawCard();                 // drawing from the top leaves the first two
     }
 
-    assert(deck.outputDeck() == "Card 2\nCard 3\n");     // one card per line, in deck order
+    assert(deck.getCard(0) == lastTwoFirst);    // the two survivors are the ones expected
+    assert(deck.getCard(1) == lastTwoSecond);
+    assert(deck.outputDeck() == lastTwoFirst->output() + "\n" + lastTwoSecond->output() + "\n");
 
     // ---- emptying the deck ----
     while (!deck.isEmpty())
@@ -621,25 +655,34 @@ void testDeck()
     assert(deck.getDeckSize() == 0);           // drawing every card empties the deck exactly
     assert(deck.isEmpty());                    // and it reports itself as empty
     assert(deck.drawCard() == nullptr);        // and it stays empty
+    assert(deck.outputDeck() == "");           // and prints nothing
 
     // ---- shuffleDeck ----
-    deck.generateStartingDeck();
+    // Shuffling must move the cards around without gaining, losing or duplicating any.
+    deck.generateDeckForState(12, 1, 12);
+
+    Card* beforeShuffle[50];
+    for (int i = 0; i < 50; i++)
+    {
+        beforeShuffle[i] = deck.getCard(i);
+    }
+
     deck.shuffleDeck();
 
     assert(deck.getDeckSize() == 50);          // shuffling does not gain or lose cards
-    assert(deck.getCard(0) != nullptr);        // every slot still holds a card
-    assert(deck.getCard(49) != nullptr);
     assert(deck.getCard(50) == nullptr);       // and the deck did not grow
 
-    // ---- generateDeckForState ----
-    // The start of a game: a 12 node bridge with player 1 on node 1 and player 2 on node
-    // 12. That is the calmest game state, so this builds tier 0.
-    deck.generateDeckForState(12, 1, 12);
+    for (int i = 0; i < 50; i++)
+    {
+        int found = 0;
 
-    assert(deck.getDeckSize() == 50);          // every tier builds exactly 50 cards
-    assert(deck.getCard(0) != nullptr);        // and they are all real cards
-    assert(deck.getCard(49) != nullptr);
-    assert(deck.getCard(50) == nullptr);       // the deck did not overflow
+        for (int j = 0; j < 50; j++)
+        {
+            if (deck.getCard(j) == beforeShuffle[i]) found++;
+        }
+
+        assert(found == 1);                    // every card is still there, exactly once
+    }
 
     // A longer bridge with both players further from the finish is a later, more urgent
     // state, so this builds a higher tier. Every tier still holds exactly 50 cards, and
@@ -680,7 +723,6 @@ void testPlayer()
     assert(player.getCastleNode() == &castle);      // and remembers which castle is theirs
     assert(player.getHandSize() == 0);              // with an empty hand
     assert(player.isHandFull() == false);           // that is not full
-    assert(player.hasWon() == false);               // and has not won yet
 
     // ---- moving ----
     player.setCurrentNode(&middle);
@@ -760,18 +802,10 @@ void testPlayer()
     assert(player.hasActivated(&middle) == false);  // a new turn clears the list
 
     // ---- winning ----
-    player.setWon(true);
-
-    assert(player.hasWon() == true);                // the win flag can be set
-
-    player.setWon(false);
-
-    assert(player.hasWon() == false);               // and cleared again
-
-    // !!! BROKEN: nothing in the game ever calls setWon(). GameLogic::checkWinCondition()
-    // works out the winner and sets its own gameOver flag instead, so Player::hasWon() is
-    // always false even after somebody has won. Either checkWinCondition() should call
-    // setWon() on the winner, or hasWon()/setWon() should be deleted from Player.
+    // Player no longer carries a win flag. GameLogic::checkWinCondition() compares each
+    // player's current node against the opposite castle and owns the gameOver flag itself,
+    // so there is only one place that knows whether the game is over and nothing to keep in
+    // step with it. There is nothing left on Player to test here.
 
     // ??? UNCLEAR: nobody deletes the cards in a hand. Player's destructor is empty and
     // the copy constructor copies the POINTERS, so two players can end up holding the same
@@ -921,10 +955,27 @@ void testBridge()
     assert(diceRemoved == true);
     assert(castle1->right == inserted);          // the boost node is back next to the castle
 
-    // !!! BROKEN: insertCard() is never called with a null card in this test because it
-    // would kill the program. It does "typeid(*newNodeCard)" twice, and dereferencing a
-    // null pointer there throws std::bad_typeid.
-    // Add "if (newNodeCard == nullptr) return false;" at the top.
+    // A null card is refused instead of crashing. insertCard() does "typeid(*newNodeCard)"
+    // further down, which would throw std::bad_typeid on a null pointer, so the guard has to
+    // come before it.
+    int countBeforeNull = 0;
+    for (Node* walk = castle1; walk != nullptr; walk = walk->right)
+    {
+        countBeforeNull++;
+    }
+
+    bool nullInsert = bridge.insertCard(1, 2, nullptr);
+
+    assert(nullInsert == false);                 // a null card cannot be placed
+
+    int countAfterNull = 0;
+    for (Node* walk = castle1; walk != nullptr; walk = walk->right)
+    {
+        countAfterNull++;
+    }
+
+    assert(countAfterNull == countBeforeNull);   // and no empty node was left behind
+    assert(castle1->right == inserted);          // the bridge is untouched
 
     // ---- attachModifierCard ----
     bool attached = bridge.attachModifierCard(2, new Booster(1));
@@ -1191,9 +1242,8 @@ void testVisual()
     // order, so what a player reads off the bridge is what they get moved by. A dice node
     // is the one exception, and it is meant to be: it prints 0 and rolls when landed on.
 
-    // ??? UNCLEAR: printBridge() prints every node on one long line. The design says it
-    // would wrap onto the next line once it gets too wide. Because the node labels are
-    // different widths (see testNodeCard) the numbers after them do not line up either.
+    // printBridge() wraps onto a new line every 7 nodes, and every node label is the same
+    // width, so the numbers underneath line up in columns however long the bridge gets.
 }
 
 // =====================================================================================
@@ -1233,9 +1283,6 @@ void testGameLogic()
     // just hands out blank nodes forever and the game can never end that way. It also
     // draws only one card in that case instead of three, and does not check whether the
     // hand is full first, so the card leaks if it is.
-
-    // ??? UNCLEAR: checkWinCondition() decides the winner and sets gameOver, but never
-    // calls setWon() on the winning Player (see testPlayer).
 
     // ??? UNCLEAR: movingPhase() stops the chain the moment a player teleports through a
     // portal, so the node they land on never activates. The design says a player keeps

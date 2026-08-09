@@ -5,8 +5,7 @@ Player::Player(int playerId, Node* startingCastle)
     : playerId(playerId),
       currentNode(startingCastle),
       castleNode(startingCastle),
-      handSize(0),
-      won(false)
+      handSize(0)
 {
     for (int i = 0; i < MAX_HAND_SIZE; i++) {
         hand[i] = nullptr;
@@ -14,6 +13,9 @@ Player::Player(int playerId, Node* startingCastle)
 }
 
 Player::~Player() {
+    // Nothing to delete. A Player only observes its nodes and cards: the Bridge owns
+    // every Node and the Deck owns every Card, and each deletes its own in its
+    // destructor. hand is a fixed-size member array, not an allocation.
 }
 
 Player::Player(const Player& other)
@@ -21,11 +23,14 @@ Player::Player(const Player& other)
       currentNode(other.currentNode),
       castleNode(other.castleNode),
       handSize(other.handSize),
-      won(other.won),
-      activatedCardsThisTurn(other.activatedCardsThisTurn) 
+      activatedCardsThisTurn(other.activatedCardsThisTurn)
 {
-    for (int i = 0; i < MAX_HAND_SIZE; i++) {
-        hand[i] = other.hand[i]; 
+    // Shallow copy on purpose: the copy observes the same nodes and cards as other.
+    for (int i = 0; i < handSize; i++) {
+        hand[i] = other.hand[i];
+    }
+    for (int i = handSize; i < MAX_HAND_SIZE; i++) {
+        hand[i] = nullptr;
     }
 }
 
@@ -38,11 +43,13 @@ Player& Player::operator=(const Player& other) {
     currentNode = other.currentNode;
     castleNode = other.castleNode;
     handSize = other.handSize;
-    won = other.won;
     activatedCardsThisTurn = other.activatedCardsThisTurn;
 
-    for (int i = 0; i < MAX_HAND_SIZE; i++) {
-        hand[i] = other.hand[i]; 
+    for (int i = 0; i < handSize; i++) {
+        hand[i] = other.hand[i];
+    }
+    for (int i = handSize; i < MAX_HAND_SIZE; i++) {
+        hand[i] = nullptr;
     }
 
     return *this;
@@ -123,14 +130,4 @@ void Player::markActivated(Node* landedNode) {
 
 void Player::resetActivatedCardsForNewTurn() {
     activatedCardsThisTurn.clear();
-}
-
-// Win Condition
-
-bool Player::hasWon() const {
-    return won;
-}
-
-void Player::setWon(bool wonStatus) {
-    won = wonStatus;
 }
