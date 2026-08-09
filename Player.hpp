@@ -64,12 +64,12 @@ public:
 
 
 private:
-    int playerId;
-    Node* currentNode;
-    Node* castleNode;                          
-    Card* hand[MAX_HAND_SIZE];
-    int handSize;
-    std::vector<Node*> activatedCardsThisTurn;  
+    int playerId;                               // this player's unique id
+    Node* currentNode;                          // node the player is currently standing on
+    Node* castleNode;                           // node the player started on / calls home
+    Card* hand[MAX_HAND_SIZE];                  // cards currently held by the player
+    int handSize;                               // number of cards currently in hand
+    std::vector<Node*> activatedCardsThisTurn;  // nodes already activated by this player this turn
 };
 
-#endif 
+#endif
