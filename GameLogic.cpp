@@ -40,6 +40,8 @@ void GameLogic::startGame() {
         }
         std::cout << "Press 'Q' to quit or any other key to continue: ";
         std::cin >> choice;
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
         #ifdef HIDE_INPUT
         std::cout << "\033[A\r\033[2K";
         #endif 
@@ -86,6 +88,9 @@ void GameLogic::runTurn() {
         }
 
         resolvePlacements(p1choice, p2choice);
+        std::cout << std::endl;
+        visual.printBridge(bridge, player1, player2);
+        std::cout << std::endl << std::endl;
     }
 
     movingPhase(player1);
@@ -342,6 +347,7 @@ bool GameLogic::applyPlacement(placementChoice& choice) {
 }
 
 void GameLogic::resolvePlacements(placementChoice& p1choice, placementChoice& p2choice) {
+    Visual visual;
     ModifierCard* p1Modifier = dynamic_cast<ModifierCard*>(p1choice.card);
     ModifierCard* p2Modifier = dynamic_cast<ModifierCard*>(p2choice.card);
 
