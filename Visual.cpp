@@ -24,7 +24,7 @@ void Visual::printBridge(const Bridge& bridge, const Player& player1, const Play
         }
         currentNode = currentNode->right;
         // Start a new line after every 7 nodes.
-        if (index % 7 == 0) std::cout << std::endl;
+        if (index % 9 == 0) std::cout << std::endl;
         index++;
     }
 }

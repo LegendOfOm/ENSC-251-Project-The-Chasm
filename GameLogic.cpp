@@ -13,7 +13,7 @@
 #include "Visual.hpp"
 #include <iostream>
 #include <cmath>
-// #define HIDE_INPUT
+#define HIDE_INPUT
 
 // Initializes the bridge, both players, turn number, and game state.
 GameLogic::GameLogic() : bridge(), player1(1, bridge.getPlayer1Castle()), player2(2, bridge.getPlayer2Castle()), turnNumber(0), gameOver(false) {
@@ -38,16 +38,16 @@ void GameLogic::startGame() {
 
     // Creates the deck using the starting bridge state.
     deck.generateDeckForState(12, 1, 12);
-
+    
     // Prints the bridge before the first turn begins.
     visual.printBridge(bridge, player1, player2);
     std::cout << std::endl;
-
+    
     // Continues running turns until a player wins or the user quits.
     while(!gameOver) {
         runTurn();
         checkWinCondition();
-
+        
         // Stops immediately if the turn resulted in the game ending.
         if (gameOver) {
             break;
@@ -58,7 +58,7 @@ void GameLogic::startGame() {
         std::cin >> choice;
         std::cin.clear();
         std::cin.ignore(10000, '\n');
-
+        
         // Removes the user's input from the terminal when HIDE_INPUT is enabled.
         #ifdef HIDE_INPUT
         std::cout << "\033[A\r\033[2K";
@@ -86,11 +86,11 @@ void GameLogic::runTurn() {
     // Both players draw their cards before placing begins.
     drawingPhase(player1);
     drawingPhase(player2);
-
+    
     // Tracks whether each player has finished placing cards this turn.
     bool p1Finished = false;
     bool p2Finished = false;
-
+    
     /*
     Gives both players a chance to place cards.
     A player is finished when they skip or reach the placement limit.
@@ -119,10 +119,37 @@ void GameLogic::runTurn() {
         if (p1Finished && p2Finished) {
             break;
         }
-
+        
+        Card* p1card = dynamic_cast<Card*>(p1choice.card);
+        Card* p2card = dynamic_cast<Card*>(p2choice.card);
+        ModifierCard* p1modifier = dynamic_cast<ModifierCard*>(p1choice.card);
+        ModifierCard* p2modifier = dynamic_cast<ModifierCard*>(p2choice.card);
+        std::cout << "\033[34mP1\033[0m"; 
+        if (p1card == nullptr) {
+            std::cout << " skipped" << std::endl;
+        } else {
+            std::cout << " placed " << p1choice.card->Handoutput();
+            if (p1modifier == nullptr) {
+                std::cout << " between " << p1choice.leftNode << " and " << p1choice.rightNode << std::endl;
+            } else {
+                std::cout << " at " << p1choice.targetNode << std::endl;
+            }
+        }
+        std::cout << "\033[31mP2\033[0m";
+        if (p2card == nullptr) {
+            std::cout << " skipped" << std::endl;
+        } else {
+            std::cout << " placed " << p2choice.card->Handoutput();
+            if (p2modifier == nullptr) {
+                std::cout << " between " << p2choice.leftNode << " and " << p2choice.rightNode << std::endl;
+            } else {
+                std::cout << " at " << p2choice.targetNode << std::endl;
+            }    
+        }
         // Resolves the two choices before showing the updated bridge.
         resolvePlacements(p1choice, p2choice);
         std::cout << std::endl;
+
         visual.printBridge(bridge, player1, player2);
         std::cout << std::endl << std::endl;
     }
@@ -255,7 +282,7 @@ GameLogic::placementChoice GameLogic::placingPhase(Player& player)
         NodeCard* nodeCard = dynamic_cast<NodeCard*>(choice.card);
         if (nodeCard != nullptr) {
             while(true){
-                std::cout << "Enter the 2 adjacent nodes you want to place the card between: ";
+                std::cout << "Enter the 2 adjacent nodes you want to place " << choice.card->Handoutput() << " between: ";
 
                 // Clears invalid text input and asks for the two nodes again.
                 if (!(std::cin >> choice.leftNode >> choice.rightNode)) {
@@ -300,7 +327,7 @@ GameLogic::placementChoice GameLogic::placingPhase(Player& player)
             ModifierCard* modifierCard = dynamic_cast<ModifierCard*>(choice.card);
             if (modifierCard != nullptr) {
                 while (true) {
-                    std::cout << "Enter the node you want to place the modifier on: ";
+                    std::cout << "Enter the node you want to place " << choice.card->Handoutput() << " on: ";
 
                     // Clears invalid text input and asks for the node again.
                     if (!(std::cin >> choice.targetNode)) {
@@ -413,6 +440,7 @@ bool GameLogic::applyPlacement(placementChoice& choice) {
         choice.player->removeCardFromHand(choice.card);
         delete dynamite;
         choice.card = nullptr;
+
 
         return true;
     }
