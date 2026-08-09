@@ -158,9 +158,9 @@ GameLogic::placementChoice GameLogic::placingPhase(Player& player)
             std::cin.clear();
             std::cin.ignore(10000, '\n');
             std::cout << "Please input a number." << std::endl;
+            continue;
         }
         
-        std::cin >> choice.cardIndex;
         #ifdef HIDE_INPUT
         std::cout << "\033[A\r\033[2K";
         #endif
@@ -189,7 +189,12 @@ GameLogic::placementChoice GameLogic::placingPhase(Player& player)
         if (nodeCard != nullptr) {
             while(true){
                 std::cout << "Enter the 2 adjacent nodes you want to place the card between: ";
-                std::cin >> choice.leftNode >> choice.rightNode;
+                if (!(std::cin >> choice.leftNode >> choice.rightNode)) {
+                    std::cin.clear();
+                    std::cin.ignore(10000, '\n');
+                    std::cout << "Please input a number." << std::endl;
+                    continue;
+                }
                 #ifdef HIDE_INPUT
                 std::cout << "\033[A\r\033[2K";
                 #endif
@@ -217,7 +222,12 @@ GameLogic::placementChoice GameLogic::placingPhase(Player& player)
             if (modifierCard != nullptr) {
                 while (true) {
                     std::cout << "Enter the node you want to place the modifier on: ";
-                    std::cin >> choice.targetNode;
+                    if (!(std::cin >> choice.targetNode)) {
+                        std::cin.clear();
+                        std::cin.ignore(10000, '\n');
+                        std::cout << "Please input a number." << std::endl;
+                        continue;
+                    }
                     #ifdef HIDE_INPUT
                     std::cout << "\033[A\r\033[2K";
                     #endif
@@ -349,6 +359,18 @@ void GameLogic::resolvePlacements(placementChoice& p1choice, placementChoice& p2
 
             return;
         }
+        Multiplier* p1Multiplier = dynamic_cast<Multiplier*>(p1choice.card);
+        Multiplier* p2Multiplier = dynamic_cast<Multiplier*>(p2choice.card);
+        if (p1Multiplier != nullptr) {
+            applyPlacement(p1choice);
+            applyPlacement(p2choice);
+            return;
+        } else if (p2Multiplier != nullptr) {
+            applyPlacement(p2choice);
+            applyPlacement(p1choice);
+            return;
+        }
+
     }
     
     NodeCard* p1NodeCard = dynamic_cast<NodeCard*>(p1choice.card);
@@ -469,22 +491,13 @@ int GameLogic::calculateMovement(Node* node) {
 
         Booster* booster = dynamic_cast<Booster*>(currentModifier->modifierCard);
         Recoiler* recoiler = dynamic_cast<Recoiler*>(currentModifier->modifierCard);
+        Multiplier* multiplier = dynamic_cast<Multiplier*>(currentModifier->modifierCard);
 
         if (booster != nullptr) {
             movement += booster->getBoostAmount();
         } else if (recoiler != nullptr) {
             movement += recoiler->getRecoilAmount();
-        }
-
-        currentModifier = currentModifier->next;
-    }
-
-    currentModifier = node->beginningOfStrand;
-
-        while (currentModifier != nullptr) {
-        
-        Multiplier* multiplier = dynamic_cast<Multiplier*>(currentModifier->modifierCard);
-        if (multiplier != nullptr) {
+        } else if (multiplier != nullptr) {
             movement *= multiplier->getMultiplierAmount();
         }
 
