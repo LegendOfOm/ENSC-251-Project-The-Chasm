@@ -2,9 +2,9 @@
 #define BRIDGE_H
 
 #include <string>
-#include "Card.hpp"
-#include "ModifierCard.hpp"
-#include "NodeCard.hpp"
+#include "card/Card.hpp"
+#include "card/ModifierCard.hpp"
+#include "card/NodeCard.hpp"
 
 struct ModifierStrand {
     ModifierStrand* next = nullptr;

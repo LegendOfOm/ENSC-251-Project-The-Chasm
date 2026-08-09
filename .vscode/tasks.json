@@ -13,17 +13,17 @@
                 "Bridge.cpp",
                 "Visual.cpp",
                 "Deck.cpp",
-                "Card.cpp",
-                "ModifierCard.cpp",
-                "NodeCard.cpp",
-                "BoosterNode.cpp",
-                "RecoilNode.cpp",
-                "DiceNode.cpp",
-                "PortalNode.cpp",
-                "Booster.cpp",
-                "Recoiler.cpp",
-                "Mutiplier.cpp",
-                "Dynamite.cpp",
+                "card\\Card.cpp",
+                "card\\ModifierCard.cpp",
+                "card\\NodeCard.cpp",
+                "card\\nodecards\\BoosterNode.cpp",
+                "card\\nodecards\\RecoilNode.cpp",
+                "card\\nodecards\\DiceNode.cpp",
+                "card\\nodecards\\PortalNode.cpp",
+                "card\\modifiers\\Booster.cpp",
+                "card\\modifiers\\Recoiler.cpp",
+                "card\\modifiers\\Mutiplier.cpp",
+                "card\\modifiers\\Dynamite.cpp",
                 "-o",
                 "${workspaceFolder}\\main.exe"
             ],
@@ -37,7 +37,7 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "Compiles test.cpp and every other translation unit. main.cpp is excluded on purpose: test.cpp provides its own main(), so linking both would be a duplicate-symbol error."
+            "detail": "Compiles main.cpp and every other translation unit into main.exe. test.cpp is excluded on purpose: it provides its own main(), so linking both would be a duplicate-symbol error."
         }
     ],
     "version": "2.0.0"

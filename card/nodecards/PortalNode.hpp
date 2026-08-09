@@ -1,7 +1,7 @@
 #ifndef PORTALNODE_HPP
 #define PORTALNODE_HPP
 
-#include "NodeCard.hpp"
+#include "../NodeCard.hpp"
 
 class PortalNode : public NodeCard
 {

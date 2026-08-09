@@ -1,5 +1,5 @@
 #include "DiceNode.hpp"
-#include "rng.hpp"
+#include "../../rng.hpp"
 
 // Constructor for DiceNode.
 DiceNode::DiceNode()

@@ -1,8 +1,8 @@
 #include "Bridge.hpp"
 #include <iostream>
-#include "NodeCard.hpp"
-#include "DiceNode.hpp"
-#include "PortalNode.hpp"
+#include "card/NodeCard.hpp"
+#include "card/nodecards/DiceNode.hpp"
+#include "card/nodecards/PortalNode.hpp"
 #include <typeinfo>
 
 Bridge::Bridge() : numberOfNodes(12) {

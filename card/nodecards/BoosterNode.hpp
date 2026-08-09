@@ -1,7 +1,7 @@
 #ifndef BOOSTNODE_HPP
 #define BOOSTNODE_HPP
 
-#include "NodeCard.hpp"
+#include "../NodeCard.hpp"
 
 class BoostNode : public NodeCard
 {

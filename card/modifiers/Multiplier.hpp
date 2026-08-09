@@ -1,7 +1,7 @@
 #ifndef MULTIPLIER_HPP
 #define MULTIPLIER_HPP
 
-#include "ModifierCard.hpp"
+#include "../ModifierCard.hpp"
 
 class Multiplier : public ModifierCard
 {

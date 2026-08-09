@@ -1,7 +1,7 @@
 #ifndef DICENODE_HPP
 #define DICENODE_HPP
 
-#include "NodeCard.hpp"
+#include "../NodeCard.hpp"
 
 class DiceNode : public NodeCard
 {

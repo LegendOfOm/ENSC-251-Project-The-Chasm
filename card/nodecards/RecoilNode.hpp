@@ -1,7 +1,7 @@
 #ifndef RECOILNODE_HPP
 #define RECOILNODE_HPP
 
-#include "NodeCard.hpp"
+#include "../NodeCard.hpp"
 
 class RecoilNode : public NodeCard
 {
