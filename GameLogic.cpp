@@ -120,6 +120,7 @@ void GameLogic::runTurn() {
             break;
         }
         
+        // Summary of what each player did each turn
         Card* p1card = dynamic_cast<Card*>(p1choice.card);
         Card* p2card = dynamic_cast<Card*>(p2choice.card);
         ModifierCard* p1modifier = dynamic_cast<ModifierCard*>(p1choice.card);
@@ -146,6 +147,7 @@ void GameLogic::runTurn() {
                 std::cout << " at " << p2choice.targetNode << std::endl;
             }    
         }
+
         // Resolves the two choices before showing the updated bridge.
         resolvePlacements(p1choice, p2choice);
         std::cout << std::endl;
