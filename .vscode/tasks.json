@@ -37,7 +37,7 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "Compiles main.cpp and every other translation unit into main.exe. test.cpp is excluded on purpose: it provides its own main(), so linking both would be a duplicate-symbol error."
+            "detail": "Compiles main.cpp."
         }
     ],
     "version": "2.0.0"
