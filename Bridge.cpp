@@ -43,6 +43,10 @@ Bridge::~Bridge() {
     clear();
 }
 
+int Bridge::getNumberOfNodes() const {
+    return numberOfNodes;
+}
+
 void Bridge::clear() {
     Node* myTemporaryptr;
     while (numberOfNodes > 0) {

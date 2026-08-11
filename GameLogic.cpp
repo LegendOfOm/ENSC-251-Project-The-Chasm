@@ -191,6 +191,7 @@ void GameLogic::drawingPhase(Player& player) {
             NodeCard* drawnCard = new NodeCard();
             player.addCardToHand(drawnCard);
             std::cout << "Deck is empty. Drew node cards." << std::endl;
+            deck.generateDeckForState(bridge.getNumberOfNodes(), getNodeIndex(player1.getCurrentNode()), getNodeIndex(player2.getCurrentNode()));
             break;
         }
     }

@@ -45,6 +45,9 @@ public:
 
     // managing nodes
         
+    // postcondition: returns the number of nodes on the bridge including the castle nodes
+    int getNumberOfNodes() const;
+
     // precondition: leftNode and rightNode must be next to each other
     // postcondition: attches the nodeCard onto the bridge inbetween the two nodes
     // attches to the left side first. 
